@@ -1,9 +1,8 @@
 # ExerkineNet
 ExerkineNet is a computational method to generate exerkines from bulk RNA-seq, ATAC-seq, Global Proteomics, Metabolites &amp; Lipidomics, and Immunoassays.
+ExerkineNet is tailored to include the essential details concerning your RNA sequence generation work using a transformer model like GPT-4:
 
-Here’s the revised `README.md` file for your project, "ExerkineNet," tailored to include the essential details concerning your RNA sequence generation work using a transformer model like GPT-4:
 
-```markdown
 # ExerkineNet
 
 ExerkineNet is a nucleotide sequence generation tool focused on generating RNA sequences related to exercise-induced exerkines, ligands, and receptors. Using state-of-the-art models, such as GPT-4, this project aims to facilitate the exploration and generation of biologically relevant RNA sequences that could aid in understanding gene expression during physical activity.
@@ -82,7 +81,6 @@ Contributions are welcome! Please feel free to submit a pull request or open an 
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
 
 ### Notes:
 - **Project Name**: Make sure to customize the project name and GitHub repository link to match your actual project.
@@ -90,4 +88,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - **Usage Section**: Be sure to include relevant instructions or examples for your methods, focusing on how to effectively utilize the GPT-4 API for sequence generation.
 - **Contribution Guidelines**: Feel free to alter this section according to your project's contribution policies.
 
-This README provides a comprehensive overview of your project and should serve well to inform users about the purpose, setup, and usage of your RNA sequence generation tool. If you need further modifications or additions, please let me know!
+This README provides a comprehensive overview of your project and should serve well to inform users about the purpose, setup, and usage of your RNA sequence generation tool.
