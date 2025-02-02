@@ -1,11 +1,6 @@
 # ExerkineNet
-ExerkineNet is a computational method to generate exerkines from bulk RNA-seq, ATAC-seq, Global Proteomics, Metabolites &amp; Lipidomics, and Immunoassays.
+ExerkineNet is a nucleotide sequence generation tool focused on generating RNA sequences related to exercise-induced exerkines, ligands, and receptors. Using state-of-the-art models, such as GPT-4, this project aims to facilitate the exploration and generation of biologically relevant RNA sequences that could aid in understanding gene expression during physical activity. ExerkineNet generates exerkines from bulk RNA-seq, ATAC-seq, Global Proteomics, Metabolites &amp; Lipidomics, and Immunoassays.
 ExerkineNet is tailored to include the essential details concerning your RNA sequence generation work using a transformer model like GPT-4:
-
-
-# ExerkineNet
-
-ExerkineNet is a nucleotide sequence generation tool focused on generating RNA sequences related to exercise-induced exerkines, ligands, and receptors. Using state-of-the-art models, such as GPT-4, this project aims to facilitate the exploration and generation of biologically relevant RNA sequences that could aid in understanding gene expression during physical activity.
 
 ## Table of Contents
 - [Features](#features)
