@@ -16,8 +16,8 @@ Support for variable-length RNA sequence analysis
 ## Requirements
 
 ### Go Components
-Go 1.16+
-NCBI Entrez Direct utilities
+- Go 1.16+
+- NCBI Entrez Direct utilities
 
 ### Python Components
 Python 3.8+
