@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"encoding/xml"
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -43,11 +42,12 @@ type Item struct {
 
 // Main function
 func main() {
-	// Parse command line arguments
-	inputFile := flag.String("input", "exerkines_list.txt", "Input file with gene list")
-	outputDir := flag.String("output", "./data/processed_data", "Output directory")
-	workers := flag.Int("workers", 5, "Number of concurrent workers")
-	flag.Parse()
+	/*
+		inputFile := flag.String("input", "exerkines_list.txt", "Input file with gene list")
+		outputDir := flag.String("output", "./data/processed_data", "Output directory")
+		workers := flag.Int("workers", 5, "Number of concurrent workers")
+		flag.Parse()
+	*/
 
 	// Load the list of genes/proteins of interest
 	geneList := loadInputList("exerkines_list.txt")
@@ -194,6 +194,20 @@ func processGenesInParallel(geneList []string, workerCount int, processFunc func
 	for result := range results {
 		fmt.Print(result)
 	}
+}
+
+// Add this function to sanitize XML before parsing
+func sanitizeXML(data []byte) []byte {
+	// Replace common XML entities that cause parsing issues
+	sanitized := string(data)
+
+	// Fix &usehistory - common in NCBI responses
+	sanitized = strings.ReplaceAll(sanitized, "&usehistory", "&amp;usehistory")
+
+	// Fix other potential issues
+	sanitized = strings.ReplaceAll(sanitized, " & ", " &amp; ")
+
+	return []byte(sanitized)
 }
 
 // Add retry logic for transient failures
@@ -358,7 +372,7 @@ func fetchProteinData(geneList []string) {
 				} `xml:"Bioseq-set_seq-set>Bioseq"`
 			}
 
-			if err := xml.Unmarshal(output, &proteinResult); err != nil {
+			if err := xml.Unmarshal(sanitizeXML(output), &proteinResult); err != nil {
 				results <- fmt.Sprintf("Error parsing protein XML for %s: %v\n", gene, err)
 				continue
 			}
@@ -624,18 +638,4 @@ func fetchFunctionalInsights(geneList []string) {
 		}
 	}
 	fmt.Printf("Functional insights saved to functional_insights.tsv\n")
-}
-
-// Add this function to sanitize XML before parsing
-func sanitizeXML(data []byte) []byte {
-	// Replace common XML entities that cause parsing issues
-	sanitized := string(data)
-
-	// Fix &usehistory - common in NCBI responses
-	sanitized = strings.ReplaceAll(sanitized, "&usehistory", "&amp;usehistory")
-
-	// Fix other potential issues
-	sanitized = strings.ReplaceAll(sanitized, " & ", " &amp; ")
-
-	return []byte(sanitized)
 }
