@@ -1,0 +1,508 @@
+package main
+
+import (
+	"bufio"
+	"encoding/xml"
+	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"strings"
+)
+
+// NCBI Response struct definitions
+type ESearchResult struct {
+	XMLName  xml.Name `xml:"eSearchResult"`
+	Count    int      `xml:"Count"`
+	RetMax   int      `xml:"RetMax"`
+	RetStart int      `xml:"RetStart"`
+	IdList   struct {
+		Ids []string `xml:"Id"`
+	} `xml:"IdList"`
+}
+
+type ESummaryResult struct {
+	XMLName xml.Name `xml:"eSummaryResult"`
+	DocSums []DocSum `xml:"DocSum"`
+}
+
+type DocSum struct {
+	Id    string `xml:"Id"`
+	Items []Item `xml:"Item"`
+}
+
+type Item struct {
+	Name     string `xml:"Name,attr"`
+	Type     string `xml:"Type,attr"`
+	Value    string `xml:",chardata"`
+	SubItems []Item `xml:"Item"`
+}
+
+// Main function
+func main() {
+	// Create directory structure if not exists
+	ensureDirectoryStructure()
+
+	// Load the list of genes/proteins of interest
+	geneList := loadInputList("data/raw_data/target_gene_list.txt")
+
+	// Process each database type
+	fmt.Println("Retrieving Gene References...")
+	fetchGeneReferences(geneList)
+
+	fmt.Println("\nRetrieving Protein IDs and Sequences...")
+	fetchProteinData(geneList)
+
+	fmt.Println("\nRetrieving Pathway Maps...")
+	fetchPathwayMaps(geneList)
+
+	fmt.Println("\nGathering Functional Insights...")
+	fetchFunctionalInsights(geneList)
+
+	fmt.Println("\nMapping Ligand-Receptor Interactions...")
+	mapLigandReceptorInteractions(geneList)
+
+	fmt.Println("\nAnalyzing Extracellular Vesicle Content...")
+	analyzeEVContent(geneList)
+}
+
+// Load input list from file
+func loadInputList(filename string) []string {
+	// Check if file exists, if not create example file
+	if _, err := os.Stat(filename); os.IsNotExist(err) {
+		fmt.Printf("Input file %s not found. Creating sample file.\n", filename)
+		sampleList := []string{
+			"ADPN", "AdipoR1", "AdipoR2", "ANGTL4", "ITGAM", "ITGAV", "APLN", "APJ", "APLNR",
+			"BDNF", "TRKB", "p75NTR", "CX3CL1", "CX3CR1", "FGF21", "FGFR1C", "FGF1", "FGFR1",
+			"FGFR2", "FGFR3", "FGFR4", "FGF2", "GDF15", "GFRAL", "IL6", "IL6R", "IL7", "IL7R",
+			"IL8", "CXCR1", "CXCR2", "IL13", "IL13RA1", "IL13RA2", "IL15", "IL15RA", "IL2RB",
+			"IL22", "IL22R1", "IL10R2", "IGF1", "IGF1R", "LIF", "LIFR", "OSTN", "NPR3", "GDF8",
+			"ACVR2B", "TGFB1", "TGFBR1", "TGFBR2", "TGFB2", "VEGF", "VEGFR1", "VEGFR2", "TNF",
+			"TNFR1", "TNFR2", "BMP8A", "BMPR1A", "BMPR2", "BMP8B", "IL1RA", "IL1R1", "RBP4",
+			"STRA6", "MSTN", "LEP", "LEPR", "DCN", "EGFR", "MCP1", "CCR2", "ANGPTL4", "CNTF",
+			"CNTFR", "gp130", "INS", "INSR", "NRG4", "ERBB4", "IL1", "IL1R2", "IL4", "IL4R",
+			"IL18", "IL18R1", "IL18RAP", "VEGFA", "GDF11", "KL", "CXCL1", "CXCR2", "CCL2",
+			"CSF3", "CSF3R", "CTGF", "LRP1", "PGRN", "SORT1", "REN", "ATP6AP2", "BMP7",
+			"SERPINA12", "GRP78", "RARRES2", "CMLKR1", "ChemR23", "GPR1", "IL1B", "FGF19",
+			"SPX", "GALR2", "GALR3", "LPS", "TLR4", "SCFAs", "GPR41", "GPR43", "IL10", "IL10R",
+			"TNFRSF11B", "RANKL", "BGLAP", "GPRC6A", "SPARC", "SOST", "LRP4", "LRP5", "LRP6",
+			"SPP1", "CD44", "AHSG", "LECT2", "CD209", "SEP", "APOER2", "ADRPIN", "ADIPOR1",
+			"ADIPOR2", "INHBA", "INHBE", "ACVR2A", "TNFA", "IL1A", "IFNG", "IFNGR1", "IFNGR2",
+			"IL6SR", "VDR", "AGE", "RAGE", "S100A", "S100B", "INHBB", "CCL11", "CCR3", "FAS",
+			"FASR", "ICAM1", "ITGAL", "ITGB2", "MDC", "CCR4", "OPN", "PARC", "CCR1", "RANTES",
+			"CCR5", "NTF3", "TRKC", "CNDP2", "METRNL",
+		}
+		file, err := os.Create(filename)
+		if err != nil {
+			log.Fatalf("Failed to create sample file: %v", err)
+		}
+		defer file.Close()
+
+		for _, gene := range sampleList {
+			file.WriteString(gene + "\n")
+		}
+		fmt.Printf("Created sample file with common exerkines. Edit %s to customize your search.\n\n", filename)
+	}
+
+	// Read file
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatalf("Failed to open input file: %v", err)
+	}
+	defer file.Close()
+
+	var list []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		item := strings.TrimSpace(scanner.Text())
+		if item != "" {
+			list = append(list, item)
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatalf("Error reading input file: %v", err)
+	}
+
+	fmt.Printf("Loaded %d items from %s\n", len(list), filename)
+	return list
+}
+
+// Fetch gene references
+func fetchGeneReferences(geneList []string) {
+	outputFile, err := os.Create("gene_references.tsv")
+	if err != nil {
+		log.Fatalf("Failed to create output file: %v", err)
+	}
+	defer outputFile.Close()
+
+	// Write header
+	outputFile.WriteString("Query\tGene_ID\tSymbol\tDescription\tChromosome\tMapLocation\n")
+
+	for _, gene := range geneList {
+		fmt.Printf("Processing gene: %s\n", gene)
+
+		// Run esearch to find gene IDs
+		cmd := exec.Command("sh", "-c",
+			fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | efetch -format xml", gene))
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Printf("Error searching for gene %s: %v\n", gene, err)
+			continue
+		}
+		// Parse the XML
+		var result struct {
+			Entrezgenes []struct {
+				EntrezgeneTrack struct {
+					GeneTrack struct {
+						GeneID string `xml:"geneid"`
+					} `xml:"Gene-track"`
+				} `xml:"Entrezgene_track"`
+				EntrezgeneGene struct {
+					GeneRef struct {
+						GeneDesc  string `xml:"Gene-ref_desc"`
+						GeneLocus string `xml:"Gene-ref_locus"`
+						GeneMap   struct {
+							MapLoc string `xml:"Maps_display-str"`
+						} `xml:"Gene-ref_maploc"`
+					} `xml:"Gene-ref"`
+				} `xml:"Entrezgene_gene"`
+				EntrezgeneSource struct {
+					BioSource struct {
+						SubSource []struct {
+							SubtypeName  string `xml:"SubSource_subtype>SubSource_subtype_name"`
+							SubtypeValue string `xml:"SubSource_name"`
+						} `xml:"BioSource_subtype>SubSource"`
+					} `xml:"Entrezgene_source_biosrc"`
+				} `xml:"Entrezgene_source"`
+			} `xml:"Entrezgene"`
+		}
+
+		if err := xml.Unmarshal(output, &result); err != nil {
+			fmt.Printf("Error parsing XML for gene %s: %v\n", gene, err)
+			continue
+		}
+
+		// Write results to file
+		for _, eg := range result.Entrezgenes {
+			geneID := eg.EntrezgeneTrack.GeneTrack.GeneID
+			symbol := eg.EntrezgeneGene.GeneRef.GeneLocus
+			description := eg.EntrezgeneGene.GeneRef.GeneDesc
+			mapLocation := eg.EntrezgeneGene.GeneRef.GeneMap.MapLoc
+
+			// Find chromosome
+			chromosome := "Unknown"
+			for _, src := range eg.EntrezgeneSource.BioSource.SubSource {
+				if src.SubtypeName == "chromosome" {
+					chromosome = src.SubtypeValue
+					break
+				}
+			}
+
+			outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\n",
+				gene, geneID, symbol, description, chromosome, mapLocation))
+		}
+	}
+	fmt.Printf("Gene references saved to gene_references.tsv\n")
+}
+
+// Fetch protein data and FASTA sequences
+func fetchProteinData(geneList []string) {
+	// Create protein info file
+	infoFile, err := os.Create("protein_info.tsv")
+	if err != nil {
+		log.Fatalf("Failed to create protein info file: %v", err)
+	}
+	defer infoFile.Close()
+
+	// Create FASTA file
+	fastaFile, err := os.Create("protein_sequences.fasta")
+	if err != nil {
+		log.Fatalf("Failed to create FASTA file: %v", err)
+	}
+	defer fastaFile.Close()
+
+	// Write header for info file
+	infoFile.WriteString("Query\tProtein_ID\tAccession\tName\tLength\tMolecular_Weight\n")
+
+	for _, gene := range geneList {
+		fmt.Printf("Processing protein for: %s\n", gene)
+
+		// Search for protein
+		cmd := exec.Command("sh", "-c",
+			fmt.Sprintf("esearch -db protein -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism] AND refseq[Filter]\" | efetch -format xml", gene))
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Printf("Error searching for protein %s: %v\n", gene, err)
+			continue
+		}
+
+		// Parse protein data
+		var proteinResult struct {
+			ProteinList []struct {
+				ProtID        string  `xml:"Bioseq_id>Seq-id>Seq-id_other>Seq-id_other_gi"`
+				ProtAccession string  `xml:"Bioseq_id>Seq-id>Seq-id_other>Textseq-id>Textseq-id_accession"`
+				ProtName      string  `xml:"Bioseq_id>Seq-id>Seq-id_other>Textseq-id>Textseq-id_name"`
+				ProtLength    int     `xml:"Bioseq_length"`
+				ProtSeqData   string  `xml:"Bioseq_seq-data>Seq-data>Seq-data_iupacaa>IUPACaa"`
+				ProtMolWeight float64 `xml:"Bioseq_annot>Seq-annot>Seq-annot_data>Seq-annot_data_ftable>Seq-feat>Seq-feat_ext>User-object>User-field>User-field_data>User-field_data_real"`
+			} `xml:"Bioseq-set_seq-set>Bioseq"`
+		}
+
+		if err := xml.Unmarshal(output, &proteinResult); err != nil {
+			fmt.Printf("Error parsing protein XML for %s: %v\n", gene, err)
+			continue
+		}
+
+		// Write results to files
+		for _, prot := range proteinResult.ProteinList {
+			// Write to info file
+			infoFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%d\t%.2f\n",
+				gene, prot.ProtID, prot.ProtAccession, prot.ProtName, prot.ProtLength, prot.ProtMolWeight))
+
+			// Write to FASTA file
+			fastaFile.WriteString(fmt.Sprintf(">%s|%s|%s|%s\n", gene, prot.ProtID, prot.ProtAccession, prot.ProtName))
+
+			// Get sequence via efetch
+			seqCmd := exec.Command("sh", "-c",
+				fmt.Sprintf("efetch -db protein -id %s -format fasta", prot.ProtID))
+			seqOutput, err := seqCmd.CombinedOutput()
+			if err != nil {
+				fmt.Printf("Error fetching sequence for %s: %v\n", prot.ProtID, err)
+				continue
+			}
+
+			// Skip the header line and write the sequence
+			seqLines := strings.Split(string(seqOutput), "\n")
+			for i := 1; i < len(seqLines); i++ {
+				if len(seqLines[i]) > 0 {
+					fastaFile.WriteString(seqLines[i] + "\n")
+				}
+			}
+		}
+	}
+	fmt.Printf("Protein information saved to protein_info.tsv\n")
+	fmt.Printf("Protein sequences saved to protein_sequences.fasta\n")
+}
+
+// Fetch pathway maps
+func fetchPathwayMaps(geneList []string) {
+	outputFile, err := os.Create("pathway_maps.tsv")
+	if err != nil {
+		log.Fatalf("Failed to create pathway file: %v", err)
+	}
+	defer outputFile.Close()
+
+	// Write header
+	outputFile.WriteString("Gene\tPathway_ID\tPathway_Name\tPathway_Source\tGene_Role\n")
+
+	for _, gene := range geneList {
+		fmt.Printf("Fetching pathways for: %s\n", gene)
+
+		// Search for pathways in NCBI Biosystems
+		cmd := exec.Command("sh", "-c",
+			fmt.Sprintf("esearch -db biosystems -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | elink -target gene | efetch -format xml", gene))
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Printf("Error searching for pathways for %s: %v\n", gene, err)
+			continue
+		}
+
+		// Parse the XML
+		var result struct {
+			BioSystems []struct {
+				BSID     string `xml:"System_id"`
+				BSName   string `xml:"System_name"`
+				BSSource struct {
+					SourceName string `xml:"BioSource_name"`
+				} `xml:"System_source>BioSource"`
+				BSGenes []struct {
+					GeneRole string `xml:"System-links_db-memberships_value"`
+				} `xml:"System_ent>System-ent_genes>System-links_db-memberships"`
+			} `xml:"Biosystem"`
+		}
+
+		if err := xml.Unmarshal(output, &result); err != nil {
+			fmt.Printf("Error parsing pathway XML for %s: %v\n", gene, err)
+			continue
+		}
+
+		// Write results to file
+		for _, bs := range result.BioSystems {
+			role := "Member"
+			if len(bs.BSGenes) > 0 {
+				role = bs.BSGenes[0].GeneRole
+			}
+
+			outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
+				gene, bs.BSID, bs.BSName, bs.BSSource.SourceName, role))
+		}
+
+		// Alternative search in KEGG
+		keggCmd := exec.Command("sh", "-c",
+			fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | elink -target pathway | esummary -format xml", gene))
+		keggOutput, err := keggCmd.CombinedOutput()
+		if err != nil {
+			fmt.Printf("Error searching KEGG pathways for %s: %v\n", gene, err)
+			continue
+		}
+
+		var keggResult ESummaryResult
+		if err := xml.Unmarshal(keggOutput, &keggResult); err != nil {
+			fmt.Printf("Error parsing KEGG XML for %s: %v\n", gene, err)
+			continue
+		}
+
+		for _, docsum := range keggResult.DocSums {
+			pathwayID := docsum.Id
+			var pathwayName, pathwaySource string
+
+			for _, item := range docsum.Items {
+				if item.Name == "Full_name_E" {
+					pathwayName = item.Value
+				}
+				if item.Name == "Source" {
+					pathwaySource = item.Value
+				}
+			}
+
+			outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
+				gene, pathwayID, pathwayName, pathwaySource, "Member"))
+		}
+	}
+	fmt.Printf("Pathway information saved to pathway_maps.tsv\n")
+}
+
+// Fetch functional insights
+func fetchFunctionalInsights(geneList []string) {
+	outputFile, err := os.Create("functional_insights.tsv")
+	if err != nil {
+		log.Fatalf("Failed to create functional insights file: %v", err)
+	}
+	defer outputFile.Close()
+
+	// Write header
+	outputFile.WriteString("Gene\tFunction_Type\tDescription\tEvidence\tReference_PMID\n")
+
+	for _, gene := range geneList {
+		fmt.Printf("Fetching functional insights for: %s\n", gene)
+
+		// Search PubMed for functional studies
+		cmd := exec.Command("sh", "-c",
+			fmt.Sprintf("esearch -db pubmed -query \"%s[Gene Name] AND function AND (\"Homo sapiens\"[Organism] OR human)\" | efetch -format xml", gene))
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Printf("Error searching for functional insights for %s: %v\n", gene, err)
+			continue
+		}
+
+		// Parse the XML
+		var result struct {
+			Articles []struct {
+				PMID    string `xml:"MedlineCitation>PMID"`
+				Article struct {
+					Title    string `xml:"ArticleTitle"`
+					Abstract struct {
+						AbstractText []struct {
+							Label string `xml:"Label,attr"`
+							Text  string `xml:",chardata"`
+						} `xml:"AbstractText"`
+					} `xml:"Abstract"`
+				} `xml:"MedlineCitation>Article"`
+				KeywordList struct {
+					Keywords []string `xml:"Keyword"`
+				} `xml:"MedlineCitation>KeywordList"`
+			} `xml:"PubmedArticle"`
+		}
+
+		if err := xml.Unmarshal(output, &result); err != nil {
+			fmt.Printf("Error parsing functional XML for %s: %v\n", gene, err)
+			continue
+		}
+
+		// Write results to file
+		for _, article := range result.Articles {
+			// Extract function type and evidence from abstract sections or keywords
+			functionType := "Molecular Function"
+			evidence := "Literature"
+
+			var description string
+
+			// Try to get functional description from abstract
+			if len(article.Article.Abstract.AbstractText) > 0 {
+				for _, section := range article.Article.Abstract.AbstractText {
+					if section.Label == "RESULTS" || section.Label == "CONCLUSION" || section.Label == "CONCLUSIONS" {
+						description = section.Text
+						break
+					}
+				}
+
+				// If no specific section found, use the first section
+				if description == "" && len(article.Article.Abstract.AbstractText) > 0 {
+					description = article.Article.Abstract.AbstractText[0].Text
+				}
+			}
+
+			// If still no description, use article title
+			if description == "" {
+				description = article.Article.Title
+			}
+
+			// Look for functional keywords
+			for _, keyword := range article.KeywordList.Keywords {
+				lowerKeyword := strings.ToLower(keyword)
+				if strings.Contains(lowerKeyword, "signal") || strings.Contains(lowerKeyword, "pathway") {
+					functionType = "Signaling"
+				} else if strings.Contains(lowerKeyword, "metabol") {
+					functionType = "Metabolism"
+				} else if strings.Contains(lowerKeyword, "immune") || strings.Contains(lowerKeyword, "inflamm") {
+					functionType = "Immune Regulation"
+				} else if strings.Contains(lowerKeyword, "exercis") || strings.Contains(lowerKeyword, "muscle") {
+					functionType = "Exercise Response"
+				}
+			}
+
+			outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
+				gene, functionType, description, evidence, article.PMID))
+		}
+
+		// Get Gene Ontology annotations
+		goCmd := exec.Command("sh", "-c",
+			fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | elink -target geneontology | efetch -format xml", gene))
+		goOutput, err := goCmd.CombinedOutput()
+		if err != nil {
+			fmt.Printf("Error searching GO terms for %s: %v\n", gene, err)
+			continue
+		}
+
+		var goResult struct {
+			Terms []struct {
+				TermID       string `xml:"GO_term_id"`
+				TermName     string `xml:"GO_term_name"`
+				TermCategory string `xml:"GO_term_category"`
+				Evidence     string `xml:"GO_term_evidence"`
+				Source       string `xml:"GO_term_source"`
+			} `xml:"GoTerm"`
+		}
+
+		if err := xml.Unmarshal(goOutput, &goResult); err != nil {
+			fmt.Printf("Error parsing GO XML for %s: %v\n", gene, err)
+			continue
+		}
+
+		for _, term := range goResult.Terms {
+			functionType := term.TermCategory
+			if functionType == "Function" {
+				functionType = "Molecular Function"
+			} else if functionType == "Process" {
+				functionType = "Biological Process"
+			} else if functionType == "Component" {
+				functionType = "Cellular Component"
+			}
+
+			outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
+				gene, functionType, term.TermName, term.Evidence, term.Source))
+		}
+	}
+	fmt.Printf("Functional insights saved to functional_insights.tsv\n")
+}
