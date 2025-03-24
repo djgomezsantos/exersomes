@@ -59,7 +59,7 @@ make all
 2. Run individual steps:
 
 ```make build``` # Build Go code make run # Fetch data from NCBI 
-```make analyze ``` # Run Python analysis make test # Run unit tests
+```make analyze``` # Run Python analysis make test # Run unit tests
 
 
 
