@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
+	"time"
 )
 
 // NCBI Response struct definitions
@@ -40,11 +42,8 @@ type Item struct {
 
 // Main function
 func main() {
-	// Create directory structure if not exists
-	ensureDirectoryStructure()
-
 	// Load the list of genes/proteins of interest
-	geneList := loadInputList("data/raw_data/target_gene_list.txt")
+	geneList := loadInputList("exerkines_list.txt")
 
 	// Process each database type
 	fmt.Println("Retrieving Gene References...")
@@ -58,13 +57,188 @@ func main() {
 
 	fmt.Println("\nGathering Functional Insights...")
 	fetchFunctionalInsights(geneList)
-
-	fmt.Println("\nMapping Ligand-Receptor Interactions...")
-	mapLigandReceptorInteractions(geneList)
-
-	fmt.Println("\nAnalyzing Extracellular Vesicle Content...")
-	analyzeEVContent(geneList)
 }
+
+func fetchGeneReferences(geneList []string) {
+	outputFile, err := os.Create("gene_references.tsv")
+	if err != nil {
+		log.Fatalf("Failed to create output file: %v", err)
+	}
+	defer outputFile.Close()
+
+	// Write header
+	outputFile.WriteString("Query\tGene_ID\tSymbol\tDescription\tChromosome\tMapLocation\n")
+
+	// Create a mutex for safe file writing
+	var fileMutex sync.Mutex
+
+	// Create progress tracker
+	progress := NewProgressTracker(len(geneList))
+
+	// Process genes in parallel with 5 workers
+	processGenesInParallel(geneList, 5, func(genes []string, results chan string) {
+		for _, gene := range genes {
+			// Run esearch with retry and rate limiting
+			cmd := exec.Command("sh", "-c",
+				fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | efetch -format xml", gene))
+			output, err := execWithRetry(cmd, 3) // Try up to 3 times
+			if err != nil {
+				results <- fmt.Sprintf("Error searching for gene %s: %v\n", gene, err)
+				continue
+			}
+
+			// Parse XML and write to file...
+			var result struct {
+				Entrezgenes []struct {
+					EntrezgeneTrack struct {
+						GeneTrack struct {
+							GeneID string `xml:"geneid"`
+						} `xml:"Gene-track"`
+					} `xml:"Entrezgene_track"`
+					EntrezgeneGene struct {
+						GeneRef struct {
+							GeneDesc  string `xml:"Gene-ref_desc"`
+							GeneLocus string `xml:"Gene-ref_locus"`
+							GeneMap   struct {
+								MapLoc string `xml:"Maps_display-str"`
+							} `xml:"Gene-ref_maploc"`
+						} `xml:"Gene-ref"`
+					} `xml:"Entrezgene_gene"`
+					EntrezgeneSource struct {
+						BioSource struct {
+							SubSource []struct {
+								SubtypeName  string `xml:"SubSource_subtype>SubSource_subtype_name"`
+								SubtypeValue string `xml:"SubSource_name"`
+							} `xml:"BioSource_subtype>SubSource"`
+						} `xml:"Entrezgene_source_biosrc"`
+					} `xml:"Entrezgene_source"`
+				} `xml:"Entrezgene"`
+			}
+
+			if err := xml.Unmarshal(output, &result); err != nil {
+				fmt.Printf("Error parsing XML for gene %s: %v\n", gene, err)
+				continue
+			}
+
+			// Write results to file
+			for _, eg := range result.Entrezgenes {
+				geneID := eg.EntrezgeneTrack.GeneTrack.GeneID
+				symbol := eg.EntrezgeneGene.GeneRef.GeneLocus
+				description := eg.EntrezgeneGene.GeneRef.GeneDesc
+				mapLocation := eg.EntrezgeneGene.GeneRef.GeneMap.MapLoc
+
+				// Find chromosome
+				chromosome := "Unknown"
+				for _, src := range eg.EntrezgeneSource.BioSource.SubSource {
+					if src.SubtypeName == "chromosome" {
+						chromosome = src.SubtypeValue
+						break
+					}
+				}
+
+				// Use mutex when writing to file
+				fileMutex.Lock()
+				outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\n",
+					gene, geneID, symbol, description, chromosome, mapLocation))
+				fileMutex.Unlock()
+			}
+
+			progress.Increment()
+			results <- fmt.Sprintf("Processed gene: %s\n", gene)
+
+		}
+	})
+
+	fmt.Printf("\nGene references saved to gene_references.tsv\n")
+}
+
+// Add this function to process genes concurrently with worker pool
+func processGenesInParallel(geneList []string, workerCount int, processFunc func([]string, chan string)) {
+	// Create a channel to receive genes to process
+	jobs := make(chan string, len(geneList))
+	results := make(chan string, len(geneList))
+
+	// Create worker pool
+	var wg sync.WaitGroup
+	for w := 1; w <= workerCount; w++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			for gene := range jobs {
+				// Process the gene
+				processFunc([]string{gene}, results)
+			}
+		}(w)
+	}
+
+	// Send jobs to workers
+	for _, gene := range geneList {
+		jobs <- gene
+	}
+	close(jobs)
+
+	// Wait for all workers to complete
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	// Print results
+	for result := range results {
+		fmt.Print(result)
+	}
+}
+
+// Add retry logic for transient failures
+func execWithRetry(cmd *exec.Cmd, maxRetries int) ([]byte, error) {
+	var output []byte
+	var err error
+
+	for i := 0; i < maxRetries; i++ {
+		output, err = cmd.CombinedOutput()
+		if err == nil {
+			return output, nil
+		}
+
+		fmt.Printf("Command failed (attempt %d/%d): %v\n", i+1, maxRetries, err)
+		time.Sleep(time.Duration(i*2) * time.Second) // Exponential backoff
+	}
+
+	return output, err
+}
+
+// Add a progress tracker
+type ProgressTracker struct {
+	total     int
+	completed int
+	mu        sync.Mutex
+}
+
+func NewProgressTracker(total int) *ProgressTracker {
+	return &ProgressTracker{total: total}
+}
+
+func (p *ProgressTracker) Increment() {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.completed++
+	fmt.Printf("\rProgress: %d/%d (%.1f%%)", p.completed, p.total, float64(p.completed)/float64(p.total)*100)
+}
+
+/***
+// Add rate limiting to avoid overwhelming NCBI servers
+func fetchWithRateLimit(cmd *exec.Cmd) ([]byte, error) {
+	// Static rate limiter
+	time.Sleep(334 * time.Millisecond) // ~3 requests per second
+	return cmd.CombinedOutput()
+}
+
+// Use streaming XML decoder for large responses
+func parseXMLStream(data []byte, handler func(*xml.Decoder) error) error {
+	decoder := xml.NewDecoder(bytes.NewReader(data))
+	return handler(decoder)
+}
+***/
 
 // Load input list from file
 func loadInputList(filename string) []string {
@@ -72,14 +246,14 @@ func loadInputList(filename string) []string {
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		fmt.Printf("Input file %s not found. Creating sample file.\n", filename)
 		sampleList := []string{
-			"ADPN", "AdipoR1", "AdipoR2", "ANGTL4", "ITGAM", "ITGAV", "APLN", "APJ", "APLNR",
-			"BDNF", "TRKB", "p75NTR", "CX3CL1", "CX3CR1", "FGF21", "FGFR1C", "FGF1", "FGFR1",
+			"ADPN", "AdipoR1", "AdipoR2", "ITGAM", "ITGAV", "APLN", "APLNR",
+			"BDNF", "TRKB", "p75NTR", "CX3CL1", "CX3CR1", "FGF21", "FGF1", "FGFR1",
 			"FGFR2", "FGFR3", "FGFR4", "FGF2", "GDF15", "GFRAL", "IL6", "IL6R", "IL7", "IL7R",
 			"IL8", "CXCR1", "CXCR2", "IL13", "IL13RA1", "IL13RA2", "IL15", "IL15RA", "IL2RB",
 			"IL22", "IL22R1", "IL10R2", "IGF1", "IGF1R", "LIF", "LIFR", "OSTN", "NPR3", "GDF8",
-			"ACVR2B", "TGFB1", "TGFBR1", "TGFBR2", "TGFB2", "VEGF", "VEGFR1", "VEGFR2", "TNF",
+			"ACVR2B", "TGFB1", "TGFBR1", "TGFBR2", "TGFB2", "VEGF", "VEGFR1", "VEGFR2",
 			"TNFR1", "TNFR2", "BMP8A", "BMPR1A", "BMPR2", "BMP8B", "IL1RA", "IL1R1", "RBP4",
-			"STRA6", "MSTN", "LEP", "LEPR", "DCN", "EGFR", "MCP1", "CCR2", "ANGPTL4", "CNTF",
+			"STRA6", "MSTN", "DCN", "EGFR", "MCP1", "CCR2", "ANGPTL4", "CNTF",
 			"CNTFR", "gp130", "INS", "INSR", "NRG4", "ERBB4", "IL1", "IL1R2", "IL4", "IL4R",
 			"IL18", "IL18R1", "IL18RAP", "VEGFA", "GDF11", "KL", "CXCL1", "CXCR2", "CCL2",
 			"CSF3", "CSF3R", "CTGF", "LRP1", "PGRN", "SORT1", "REN", "ATP6AP2", "BMP7",
@@ -128,85 +302,7 @@ func loadInputList(filename string) []string {
 	return list
 }
 
-// Fetch gene references
-func fetchGeneReferences(geneList []string) {
-	outputFile, err := os.Create("gene_references.tsv")
-	if err != nil {
-		log.Fatalf("Failed to create output file: %v", err)
-	}
-	defer outputFile.Close()
-
-	// Write header
-	outputFile.WriteString("Query\tGene_ID\tSymbol\tDescription\tChromosome\tMapLocation\n")
-
-	for _, gene := range geneList {
-		fmt.Printf("Processing gene: %s\n", gene)
-
-		// Run esearch to find gene IDs
-		cmd := exec.Command("sh", "-c",
-			fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | efetch -format xml", gene))
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Printf("Error searching for gene %s: %v\n", gene, err)
-			continue
-		}
-		// Parse the XML
-		var result struct {
-			Entrezgenes []struct {
-				EntrezgeneTrack struct {
-					GeneTrack struct {
-						GeneID string `xml:"geneid"`
-					} `xml:"Gene-track"`
-				} `xml:"Entrezgene_track"`
-				EntrezgeneGene struct {
-					GeneRef struct {
-						GeneDesc  string `xml:"Gene-ref_desc"`
-						GeneLocus string `xml:"Gene-ref_locus"`
-						GeneMap   struct {
-							MapLoc string `xml:"Maps_display-str"`
-						} `xml:"Gene-ref_maploc"`
-					} `xml:"Gene-ref"`
-				} `xml:"Entrezgene_gene"`
-				EntrezgeneSource struct {
-					BioSource struct {
-						SubSource []struct {
-							SubtypeName  string `xml:"SubSource_subtype>SubSource_subtype_name"`
-							SubtypeValue string `xml:"SubSource_name"`
-						} `xml:"BioSource_subtype>SubSource"`
-					} `xml:"Entrezgene_source_biosrc"`
-				} `xml:"Entrezgene_source"`
-			} `xml:"Entrezgene"`
-		}
-
-		if err := xml.Unmarshal(output, &result); err != nil {
-			fmt.Printf("Error parsing XML for gene %s: %v\n", gene, err)
-			continue
-		}
-
-		// Write results to file
-		for _, eg := range result.Entrezgenes {
-			geneID := eg.EntrezgeneTrack.GeneTrack.GeneID
-			symbol := eg.EntrezgeneGene.GeneRef.GeneLocus
-			description := eg.EntrezgeneGene.GeneRef.GeneDesc
-			mapLocation := eg.EntrezgeneGene.GeneRef.GeneMap.MapLoc
-
-			// Find chromosome
-			chromosome := "Unknown"
-			for _, src := range eg.EntrezgeneSource.BioSource.SubSource {
-				if src.SubtypeName == "chromosome" {
-					chromosome = src.SubtypeValue
-					break
-				}
-			}
-
-			outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\n",
-				gene, geneID, symbol, description, chromosome, mapLocation))
-		}
-	}
-	fmt.Printf("Gene references saved to gene_references.tsv\n")
-}
-
-// Fetch protein data and FASTA sequences
+// Replace your existing fetchProteinData function with this:
 func fetchProteinData(geneList []string) {
 	// Create protein info file
 	infoFile, err := os.Create("protein_info.tsv")
@@ -225,63 +321,79 @@ func fetchProteinData(geneList []string) {
 	// Write header for info file
 	infoFile.WriteString("Query\tProtein_ID\tAccession\tName\tLength\tMolecular_Weight\n")
 
-	for _, gene := range geneList {
-		fmt.Printf("Processing protein for: %s\n", gene)
+	// Create mutexes for safe file writing
+	var infoMutex, fastaMutex sync.Mutex
 
-		// Search for protein
-		cmd := exec.Command("sh", "-c",
-			fmt.Sprintf("esearch -db protein -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism] AND refseq[Filter]\" | efetch -format xml", gene))
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Printf("Error searching for protein %s: %v\n", gene, err)
-			continue
-		}
+	// Create progress tracker
+	progress := NewProgressTracker(len(geneList))
 
-		// Parse protein data
-		var proteinResult struct {
-			ProteinList []struct {
-				ProtID        string  `xml:"Bioseq_id>Seq-id>Seq-id_other>Seq-id_other_gi"`
-				ProtAccession string  `xml:"Bioseq_id>Seq-id>Seq-id_other>Textseq-id>Textseq-id_accession"`
-				ProtName      string  `xml:"Bioseq_id>Seq-id>Seq-id_other>Textseq-id>Textseq-id_name"`
-				ProtLength    int     `xml:"Bioseq_length"`
-				ProtSeqData   string  `xml:"Bioseq_seq-data>Seq-data>Seq-data_iupacaa>IUPACaa"`
-				ProtMolWeight float64 `xml:"Bioseq_annot>Seq-annot>Seq-annot_data>Seq-annot_data_ftable>Seq-feat>Seq-feat_ext>User-object>User-field>User-field_data>User-field_data_real"`
-			} `xml:"Bioseq-set_seq-set>Bioseq"`
-		}
-
-		if err := xml.Unmarshal(output, &proteinResult); err != nil {
-			fmt.Printf("Error parsing protein XML for %s: %v\n", gene, err)
-			continue
-		}
-
-		// Write results to files
-		for _, prot := range proteinResult.ProteinList {
-			// Write to info file
-			infoFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%d\t%.2f\n",
-				gene, prot.ProtID, prot.ProtAccession, prot.ProtName, prot.ProtLength, prot.ProtMolWeight))
-
-			// Write to FASTA file
-			fastaFile.WriteString(fmt.Sprintf(">%s|%s|%s|%s\n", gene, prot.ProtID, prot.ProtAccession, prot.ProtName))
-
-			// Get sequence via efetch
-			seqCmd := exec.Command("sh", "-c",
-				fmt.Sprintf("efetch -db protein -id %s -format fasta", prot.ProtID))
-			seqOutput, err := seqCmd.CombinedOutput()
+	// Process proteins in parallel with 5 workers
+	processGenesInParallel(geneList, 5, func(genes []string, results chan string) {
+		for _, gene := range genes {
+			// Run esearch with retry and rate limiting
+			cmd := exec.Command("sh", "-c",
+				fmt.Sprintf("esearch -db protein -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism] AND refseq[Filter]\" | efetch -format xml", gene))
+			output, err := execWithRetry(cmd, 3) // Try up to 3 times
 			if err != nil {
-				fmt.Printf("Error fetching sequence for %s: %v\n", prot.ProtID, err)
+				results <- fmt.Sprintf("Error searching for protein %s: %v\n", gene, err)
 				continue
 			}
 
-			// Skip the header line and write the sequence
-			seqLines := strings.Split(string(seqOutput), "\n")
-			for i := 1; i < len(seqLines); i++ {
-				if len(seqLines[i]) > 0 {
-					fastaFile.WriteString(seqLines[i] + "\n")
-				}
+			// Parse protein data
+			var proteinResult struct {
+				ProteinList []struct {
+					ProtID        string  `xml:"Bioseq_id>Seq-id>Seq-id_other>Seq-id_other_gi"`
+					ProtAccession string  `xml:"Bioseq_id>Seq-id>Seq-id_other>Textseq-id>Textseq-id_accession"`
+					ProtName      string  `xml:"Bioseq_id>Seq-id>Seq-id_other>Textseq-id>Textseq-id_name"`
+					ProtLength    int     `xml:"Bioseq_length"`
+					ProtSeqData   string  `xml:"Bioseq_seq-data>Seq-data>Seq-data_iupacaa>IUPACaa"`
+					ProtMolWeight float64 `xml:"Bioseq_annot>Seq-annot>Seq-annot_data>Seq-annot_data_ftable>Seq-feat>Seq-feat_ext>User-object>User-field>User-field_data>User-field_data_real"`
+				} `xml:"Bioseq-set_seq-set>Bioseq"`
 			}
+
+			if err := xml.Unmarshal(output, &proteinResult); err != nil {
+				results <- fmt.Sprintf("Error parsing protein XML for %s: %v\n", gene, err)
+				continue
+			}
+
+			// Write results to files
+			for _, prot := range proteinResult.ProteinList {
+				// Use mutex when writing to info file
+				infoMutex.Lock()
+				infoFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%d\t%.2f\n",
+					gene, prot.ProtID, prot.ProtAccession, prot.ProtName, prot.ProtLength, prot.ProtMolWeight))
+				infoMutex.Unlock()
+
+				// Use mutex when writing to FASTA file
+				fastaMutex.Lock()
+				fastaFile.WriteString(fmt.Sprintf(">%s|%s|%s|%s\n", gene, prot.ProtID, prot.ProtAccession, prot.ProtName))
+
+				// Get sequence via efetch with retry
+				seqCmd := exec.Command("sh", "-c",
+					fmt.Sprintf("efetch -db protein -id %s -format fasta", prot.ProtID))
+				seqOutput, err := execWithRetry(seqCmd, 3)
+				if err != nil {
+					fastaMutex.Unlock()
+					results <- fmt.Sprintf("Error fetching sequence for %s: %v\n", prot.ProtID, err)
+					continue
+				}
+
+				// Skip the header line and write the sequence
+				seqLines := strings.Split(string(seqOutput), "\n")
+				for i := 1; i < len(seqLines); i++ {
+					if len(seqLines[i]) > 0 {
+						fastaFile.WriteString(seqLines[i] + "\n")
+					}
+				}
+				fastaMutex.Unlock()
+			}
+
+			progress.Increment()
+			results <- fmt.Sprintf("Processed protein: %s\n", gene)
 		}
-	}
-	fmt.Printf("Protein information saved to protein_info.tsv\n")
+	})
+
+	fmt.Printf("\nProtein information saved to protein_info.tsv\n")
 	fmt.Printf("Protein sequences saved to protein_sequences.fasta\n")
 }
 
@@ -505,4 +617,18 @@ func fetchFunctionalInsights(geneList []string) {
 		}
 	}
 	fmt.Printf("Functional insights saved to functional_insights.tsv\n")
+}
+
+// Add this function to sanitize XML before parsing
+func sanitizeXML(data []byte) []byte {
+	// Replace common XML entities that cause parsing issues
+	sanitized := string(data)
+
+	// Fix &usehistory - common in NCBI responses
+	sanitized = strings.ReplaceAll(sanitized, "&usehistory", "&amp;usehistory")
+
+	// Fix other potential issues
+	sanitized = strings.ReplaceAll(sanitized, " & ", " &amp; ")
+
+	return []byte(sanitized)
 }

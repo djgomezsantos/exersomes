@@ -1,0 +1,712 @@
+Query	Gene_ID	Symbol	Description	Chromosome	MapLocation
+ADPN		ADIPOQ	adiponectin, C1Q and collagen domain containing	Unknown	
+ADPN		PNPLA3	patatin like domain 3, 1-acylglycerol-3-phosphate O-acyltransferase	Unknown	
+AdipoR1		ADIPOR1	adiponectin receptor 1	Unknown	
+AdipoR2		ADIPOR2	adiponectin receptor 2	Unknown	
+ITGAM		ITGAM	integrin subunit alpha M	Unknown	
+ITGAV		ITGAV	integrin subunit alpha V	Unknown	
+APLN		APLN	apelin	Unknown	
+APLNR		APLNR	apelin receptor	Unknown	
+BDNF		BDNF	brain derived neurotrophic factor	Unknown	
+BDNF		Bdnf	brain derived neurotrophic factor	Unknown	
+BDNF		BDNF-AS	BDNF antisense RNA	Unknown	
+TRKB		NTRK2	neurotrophic receptor tyrosine kinase 2	Unknown	
+TRKB		trkB		Unknown	
+p75NTR		NGFR	nerve growth factor receptor	Unknown	
+CX3CL1		CX3CL1	C-X3-C motif chemokine ligand 1	Unknown	
+FGF21		FGF21	fibroblast growth factor 21	Unknown	
+FGF1		FGF1	fibroblast growth factor 1	Unknown	
+FGFR1		FGFR1	fibroblast growth factor receptor 1	Unknown	
+FGFR2		FGFR2	fibroblast growth factor receptor 2	Unknown	
+FGFR3		FGFR3	fibroblast growth factor receptor 3	Unknown	
+FGFR4		FGFR4	fibroblast growth factor receptor 4	Unknown	
+FGF2		FGF2	fibroblast growth factor 2	Unknown	
+FGF2		FGF13	fibroblast growth factor 13	Unknown	
+GDF15		GDF15	growth differentiation factor 15	Unknown	
+GFRAL		GFRAL	GDNF family receptor alpha like	Unknown	
+IL6		IL6	interleukin 6	Unknown	
+IL6		Il6	interleukin 6	Unknown	
+IL6R		IL6R	interleukin 6 receptor	Unknown	
+IL7		IL7	interleukin 7	Unknown	
+IL7		LINC02605	long intergenic non-protein coding RNA 2605	Unknown	
+IL7R		IL7R	interleukin 7 receptor	Unknown	
+IL8		CXCL8	C-X-C motif chemokine ligand 8	Unknown	
+CXCR1		CXCR1	C-X-C motif chemokine receptor 1	Unknown	
+CXCR2		CXCR2	C-X-C motif chemokine receptor 2	Unknown	
+IL13		IL13	interleukin 13	Unknown	
+IL13RA1		IL13RA1	interleukin 13 receptor subunit alpha 1	Unknown	
+IL13RA2		IL13RA2	interleukin 13 receptor subunit alpha 2	Unknown	
+IL15		IL15	interleukin 15	Unknown	
+IL15RA		IL15RA	interleukin 15 receptor subunit alpha	Unknown	
+IL2RB		IL2RB	interleukin 2 receptor subunit beta	Unknown	
+IL22		IL22	interleukin 22	Unknown	
+IL22		ILTIF	IL-10-related T-cell-derived inducible factor	Unknown	
+IL22R1		IL22RA1	interleukin 22 receptor subunit alpha 1	Unknown	
+IL10R2		IL10RB	interleukin 10 receptor subunit beta	Unknown	
+IGF1		IGF1	insulin like growth factor 1	Unknown	
+IGF1R		IGF1R	insulin like growth factor 1 receptor	Unknown	
+LIF		LIF	LIF interleukin 6 family cytokine	Unknown	
+LIF		lif		Unknown	
+LIFR		LIFR	LIF receptor subunit alpha	Unknown	
+OSTN		OSTN	osteocrin	Unknown	
+NPR3		NPR3	natriuretic peptide receptor 3	Unknown	
+NPR3		NPRL3	NPR3 like, GATOR1 complex subunit	Unknown	
+NPR3		npr3		Unknown	
+NPR3		npr3		Unknown	
+NPR3		NPR3		Unknown	
+GDF8		MSTN	myostatin	Unknown	
+TGFB1		TGFB1	transforming growth factor beta 1	Unknown	
+TGFBR1		TGFBR1	transforming growth factor beta receptor 1	Unknown	
+TGFBR2		TGFBR2	transforming growth factor beta receptor 2	Unknown	
+TGFB2		TGFB2	transforming growth factor beta 2	Unknown	
+VEGF		VEGFA	vascular endothelial growth factor A	Unknown	
+VEGFR1		FLT1	fms related receptor tyrosine kinase 1	Unknown	
+VEGFR2		KDR	kinase insert domain receptor	Unknown	
+TNFA		TNF	tumor necrosis factor	Unknown	
+TNFR1		TNFRSF1A	TNF receptor superfamily member 1A	Unknown	
+TNFR2		TNFRSF1B	TNF receptor superfamily member 1B	Unknown	
+BMP8A		BMP8A	bone morphogenetic protein 8a	Unknown	
+BMPR1A		BMPR1A	bone morphogenetic protein receptor type 1A	Unknown	
+BMPR2		BMPR2	bone morphogenetic protein receptor type 2	Unknown	
+BMP8B		BMP8B	bone morphogenetic protein 8b	Unknown	
+IL1RA		IL1RN	interleukin 1 receptor antagonist	Unknown	
+IL1RA		IL6R	interleukin 6 receptor	Unknown	
+IL1RA		IL1R1	interleukin 1 receptor type 1	Unknown	
+IL1R1		IL1R1	interleukin 1 receptor type 1	Unknown	
+RBP4		RBP4	retinol binding protein 4	Unknown	
+RBP4		POLR2D	RNA polymerase II subunit D	Unknown	
+STRA6		STRA6	signaling receptor and transporter of retinol STRA6	Unknown	
+MSTN		MSTN	myostatin	Unknown	
+DCN		DCN	decorin	Unknown	
+EGFR		EGFR	epidermal growth factor receptor	Unknown	
+EGFR		Egfr	epidermal growth factor receptor	Unknown	
+MCP1		CCL2	C-C motif chemokine ligand 2	Unknown	
+MCP1		mcp-1		Unknown	
+MCP1		HSMCR30	metaphase chromosome protein 1	Unknown	
+CCR2		CCR2	C-C motif chemokine receptor 2	Unknown	
+CCR2		CCR2	chemokine (C-C motif) receptor 2	Unknown	
+ANGPTL4		ANGPTL4	angiopoietin like 4	Unknown	
+ANGPTL4		ANGPTL4	angiopoietin-like 4	Unknown	
+CNTF		CNTF	ciliary neurotrophic factor	Unknown	
+CNTFR		CNTFR	ciliary neurotrophic factor receptor	Unknown	
+gp130		IL6ST	interleukin 6 cytokine family signal transducer	Unknown	
+gp130		LRPPRC	leucine rich pentatricopeptide repeat containing	Unknown	
+gp130		NM	neutrophil migration	Unknown	
+INS		INS	insulin	Unknown	
+INSR		INSR	insulin receptor	Unknown	
+NRG4		NRG4	neuregulin 4	Unknown	
+ERBB4		ERBB4	erb-b2 receptor tyrosine kinase 4	Unknown	
+IL1		IL1B	interleukin 1 beta	Unknown	
+IL1		IL1A	interleukin 1 alpha	Unknown	
+IL4		IL4	interleukin 4	Unknown	
+IL4R		IL4R	interleukin 4 receptor	Unknown	
+IL18		IL18	interleukin 18	Unknown	
+IL18R1		IL18R1	interleukin 18 receptor 1	Unknown	
+IL18RAP		IL18RAP	interleukin 18 receptor accessory protein	Unknown	
+VEGFA		VEGFA	vascular endothelial growth factor A	Unknown	
+GDF11		GDF11	growth differentiation factor 11	Unknown	
+GDF11		GDF11	growth/differentiation factor-11	Unknown	
+KL		KL	klotho	Unknown	
+CXCL1		CXCL1	C-X-C motif chemokine ligand 1	Unknown	
+CXCR2		CXCR2	C-X-C motif chemokine receptor 2	Unknown	
+CCL2		CCL2	C-C motif chemokine ligand 2	Unknown	
+CSF3		CSF3	colony stimulating factor 3	Unknown	
+CSF3R		CSF3R	colony stimulating factor 3 receptor	Unknown	
+CTGF		CCN2	cellular communication network factor 2	Unknown	
+LRP1		LRP1	LDL receptor related protein 1	Unknown	
+LRP1		C1D	C1D nuclear receptor corepressor	Unknown	
+PGRN		GRN	granulin precursor	Unknown	
+SORT1		SORT1	sortilin 1	Unknown	
+REN		REN	renin	Unknown	
+REN		KCTD11	potassium channel tetramerization domain containing 11	Unknown	
+ATP6AP2		ATP6AP2	ATPase H+ transporting accessory protein 2	Unknown	
+BMP7		BMP7	bone morphogenetic protein 7	Unknown	
+SERPINA12		SERPINA12	serpin family A member 12	Unknown	
+GRP78		HSPA5	heat shock protein family A (Hsp70) member 5	Unknown	
+GRP78		GRP78		Unknown	
+RARRES2		RARRES2	retinoic acid receptor responder 2	Unknown	
+ChemR23		CMKLR1	chemerin chemokine-like receptor 1	Unknown	
+GPR1		CMKLR2	chemerin chemokine-like receptor 2	Unknown	
+GPR1		GPR1		Unknown	
+GPR1		GPR1		Unknown	
+IL1B		IL1B	interleukin 1 beta	Unknown	
+FGF19		FGF19	fibroblast growth factor 19	Unknown	
+SPX		SPX	spexin hormone	Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+SPX		spx		Unknown	
+GALR2		GALR2	galanin receptor 2	Unknown	
+GALR3		GALR3	galanin receptor 3	Unknown	
+LPS		Tlr4	toll-like receptor 4	Unknown	
+LPS		IRF6	interferon regulatory factor 6	Unknown	
+LPS		VWS	Van der Woude syndrome	Unknown	
+TLR4		Tlr4	toll-like receptor 4	Unknown	
+TLR4		TLR4	toll like receptor 4	Unknown	
+GPR41		FFAR3	free fatty acid receptor 3	Unknown	
+GPR43		FFAR2	free fatty acid receptor 2	Unknown	
+IL10		IL10	interleukin 10	Unknown	
+IL10R		IL10RA	interleukin 10 receptor subunit alpha	Unknown	
+TNFRSF11B		TNFRSF11B	TNF receptor superfamily member 11b	Unknown	
+TNFRSF11B		BTF3P11	basic transcription factor 3 pseudogene 11	Unknown	
+RANKL		TNFSF11	TNF superfamily member 11	Unknown	
+BGLAP		BGLAP	bone gamma-carboxyglutamate protein	Unknown	
+GPRC6A		GPRC6A	G protein-coupled receptor class C group 6 member A	Unknown	
+GPRC6A		GPRC6A	G protein-coupled receptor, family C, group 6, member A	Unknown	
+SPARC		SPARC	secreted protein acidic and cysteine rich	Unknown	
+SOST		SOST	sclerostin	Unknown	
+LRP4		CORIN	corin, serine peptidase	Unknown	
+LRP4		LRP4	LDL receptor related protein 4	Unknown	
+LRP5		LRP5	LDL receptor related protein 5	Unknown	
+LRP5		LRP5	low density lipoprotein receptor-related protein 5	Unknown	
+LRP6		LRP6	LDL receptor related protein 6	Unknown	
+SPP1		SPP1	secreted phosphoprotein 1	Unknown	
+SPP1		CXXC1	CXXC finger protein 1	Unknown	
+SPP1		SGPP1	sphingosine-1-phosphate phosphatase 1	Unknown	
+SPP1		SPP1		Unknown	
+SPP1		SPP1		Unknown	
+CD44		CD44	CD44 molecule (IN blood group)	Unknown	
+AHSG		AHSG	alpha 2-HS glycoprotein	Unknown	
+LECT2		LECT2	leukocyte cell derived chemotaxin 2	Unknown	
+CD209		CD209	CD209 molecule	Unknown	
+CD209		Cd209d	CD209d molecule	Unknown	
+SEP		SELENOP	selenoprotein P	Unknown	
+SEP		PLXNB1	plexin B1	Unknown	
+SEP		ftsI		Unknown	
+SEP		MMEL1	membrane metalloendopeptidase like 1	Unknown	
+SEP		LOC110672338	agamous-like MADS-box protein MADS2	Unknown	
+SEP		sep		Unknown	
+SEP		MMEL1	membrane metallo-endopeptidase-like 1	Unknown	
+SEP		MELL1	mel transforming oncogene-like 1	Unknown	
+APOER2		LRP8	LDL receptor related protein 8	Unknown	
+ADIPOR1		ADIPOR1	adiponectin receptor 1	Unknown	
+ADIPOR2		ADIPOR2	adiponectin receptor 2	Unknown	
+INHBA		INHBA	inhibin subunit beta A	Unknown	
+INHBE		INHBE	inhibin subunit beta E	Unknown	
+INHBE		Inhbe	inhibin beta-E	Unknown	
+ACVR2A		ACVR2A	activin A receptor type 2A	Unknown	
+TNFA		TNF	tumor necrosis factor	Unknown	
+IL1A		IL1A	interleukin 1 alpha	Unknown	
+IFNG		IFNG	interferon gamma	Unknown	
+IFNGR1		IFNGR1	interferon gamma receptor 1	Unknown	
+IFNGR2		IFNGR2	interferon gamma receptor 2	Unknown	
+VDR		VDR	vitamin D receptor	Unknown	
+VDR		CYP27B1	cytochrome P450 family 27 subfamily B member 1	Unknown	
+VDR		PDDR	pseudo-vitamin D dependency rickets 1	Unknown	
+RAGE		AGER	advanced glycosylation end-product specific receptor	Unknown	
+RAGE		MOK	MOK protein kinase	Unknown	
+RAGE		LINC00914	long intergenic non-protein coding RNA 914	Unknown	
+S100A		S100A1	S100 calcium binding protein A1	Unknown	
+S100B		S100B	S100 calcium binding protein B	Unknown	
+INHBB		INHBB	inhibin subunit beta B	Unknown	
+CCL11		CCL11	C-C motif chemokine ligand 11	Unknown	
+CCR3		CCR3	C-C motif chemokine receptor 3	Unknown	
+FAS		FAS	Fas cell surface death receptor	Unknown	
+FAS		FASN	fatty acid synthase	Unknown	
+FAS		fas		Unknown	
+ICAM1		ICAM1	intercellular adhesion molecule 1	Unknown	
+ITGAL		ITGAL	integrin subunit alpha L	Unknown	
+ITGB2		ITGB2	integrin subunit beta 2	Unknown	
+MDC		CCL22	C-C motif chemokine ligand 22	Unknown	
+MDC		ADAM11	ADAM metallopeptidase domain 11	Unknown	
+CCR4		CCR4	C-C motif chemokine receptor 4	Unknown	
+CCR4		CNOT6	CCR4-NOT transcription complex subunit 6	Unknown	
+CCR4		CCR4		Unknown	
+CCR4		CCR4		Unknown	
+CCR4		CCR4		Unknown	
+CCR4		CCR4		Unknown	
+CCR4		CNOT6	CCR4-NOT transcription complex, subunit 6	Unknown	
+OPN		SPP1	secreted phosphoprotein 1	Unknown	
+PARC		CCL18	C-C motif chemokine ligand 18	Unknown	
+PARC		CUL9	cullin 9	Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+PARC		parC		Unknown	
+CCR1		CCR1	C-C motif chemokine receptor 1	Unknown	
+RANTES		CCL5	C-C motif chemokine ligand 5	Unknown	
+CCR5		CCR5	C-C motif chemokine receptor 5	Unknown	
+NTF3		NTF3	neurotrophin 3	Unknown	
+TRKC		NTRK3	neurotrophic receptor tyrosine kinase 3	Unknown	
+CNDP2		CNDP2	carnosine dipeptidase 2	Unknown	
+METRNL		METRNL	meteorin like, glial cell differentiation regulator	Unknown	
+VEGFA		VEGFA	vascular endothelial growth factor A	Unknown	
+VEGFB		VEGFB	vascular endothelial growth factor B	Unknown	
+VEGFC		VEGFC	vascular endothelial growth factor C	Unknown	
+VEGFD		VEGFD	vascular endothelial growth factor D	Unknown	
