@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -42,6 +43,12 @@ type Item struct {
 
 // Main function
 func main() {
+	// Parse command line arguments
+	inputFile := flag.String("input", "exerkines_list.txt", "Input file with gene list")
+	outputDir := flag.String("output", "./data/processed_data", "Output directory")
+	workers := flag.Int("workers", 5, "Number of concurrent workers")
+	flag.Parse()
+
 	// Load the list of genes/proteins of interest
 	geneList := loadInputList("exerkines_list.txt")
 
