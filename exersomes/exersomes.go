@@ -48,6 +48,9 @@ func main() {
    	// Add different molecular types to the list
     	molecules = append(molecules, molecular_types.Metabolite{ID: "1", Name: "Metabolite1"})
     	molecules = append(molecules, molecular_types.MiRNA{ID: "2", Name: "MiRNA1"})
+	molecules = append(molecules, molecular_types.Protein{ID: "3", Name: "Protein1"})
+    	molecules = append(molecules, molecular_types.RNA{ID: "4", Name: "RNA1"})
+	molecules = append(molecules, molecular_types.Vesicles{ID: "5", Name: "Vesicles1"})
 
     	// Process the molecules
     	for _, molecule := range molecules {
