@@ -1,5 +1,11 @@
 package metabolites
 
+type Metabolite struct {
+    ID   string
+    Name string
+    // Add other fields
+}
+
 // ExerciseMetabolite represents a metabolite affected by exercise
 type ExerciseMetabolite struct {
 	Name                string
@@ -15,6 +21,14 @@ type ExerciseMetabolite struct {
 	SignalingPathways   []string // Pathways activated by this metabolite
 	BiologicalFunctions []string // Physiological roles
 	ExerciseSpecificity string   // Exercise types with strongest effects
+}
+
+func (m Metabolite) GetID() string {
+    return m.ID
+}
+
+func (m Metabolite) GetName() string {
+    return m.Name
 }
 
 // Key exercise-responsive metabolites
