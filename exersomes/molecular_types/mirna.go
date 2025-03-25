@@ -1,5 +1,19 @@
 package mirna
 
+type MiRNA struct {
+    ID   string
+    Name string
+    // Add other fields
+}
+
+func (r MiRNA) GetID() string {
+    return r.ID
+}
+
+func (r MiRNA) GetName() string {
+    return r.Name
+}
+
 // ExerciseMiRNA represents a microRNA affected by exercise
 type ExerciseMiRNA struct {
 	ID                  string

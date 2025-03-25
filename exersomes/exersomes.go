@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"log"
+	"models/molecular_types"
 	"os"
 	"os/exec"
 	"strings"
@@ -42,6 +43,20 @@ type Item struct {
 
 // Main function
 func main() {
+	var molecules []molecular_types.MolecularType
+
+	// Add different molecular types to the list
+	molecules = append(molecules, molecular_types.Metabolite{ID: "1", Name: "Metabolite1"})
+	molecules = append(molecules, molecular_types.MiRNA{ID: "2", Name: "MiRNA1"})
+	molecules = append(molecules, molecular_types.Protein{ID: "3", Name: "Protein1"})
+	molecules = append(molecules, molecular_types.RNA{ID: "4", Name: "RNA1"})
+	molecules = append(molecules, molecular_types.Vesicles{ID: "5", Name: "Vesicles1"})
+
+	// Process the molecules
+	for _, molecule := range molecules {
+		fmt.Println("ID:", molecule.GetID(), "Name:", molecule.GetName())
+	}
+
 	// At the beginning of main()
 	if _, err := exec.LookPath("esearch"); err != nil {
 		log.Fatal("NCBI E-utilities not found. Please install them: https://www.ncbi.nlm.nih.gov/books/NBK179288/")
