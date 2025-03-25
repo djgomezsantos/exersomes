@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/xml"
 	"fmt"
+	"models/molecular_types"
 	"log"
 	"os"
 	"os/exec"
@@ -42,6 +43,17 @@ type Item struct {
 
 // Main function
 func main() {
+	var molecules []molecular_types.MolecularType
+
+   	// Add different molecular types to the list
+    	molecules = append(molecules, molecular_types.Metabolite{ID: "1", Name: "Metabolite1"})
+    	molecules = append(molecules, molecular_types.MiRNA{ID: "2", Name: "MiRNA1"})
+
+    	// Process the molecules
+    	for _, molecule := range molecules {
+        	fmt.Println("ID:", molecule.GetID(), "Name:", molecule.GetName())
+    	}
+	
 	/*
 		inputFile := flag.String("input", "exerkines_list.txt", "Input file with gene list")
 		outputDir := flag.String("output", "./data/processed_data", "Output directory")
