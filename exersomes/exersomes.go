@@ -42,6 +42,11 @@ type Item struct {
 
 // Main function
 func main() {
+	// At the beginning of main()
+	if _, err := exec.LookPath("esearch"); err != nil {
+		log.Fatal("NCBI E-utilities not found. Please install them: https://www.ncbi.nlm.nih.gov/books/NBK179288/")
+	}
+
 	/*
 		inputFile := flag.String("input", "exerkines_list.txt", "Input file with gene list")
 		outputDir := flag.String("output", "./data/processed_data", "Output directory")
@@ -267,25 +272,24 @@ func loadInputList(filename string) []string {
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		fmt.Printf("Input file %s not found. Creating sample file.\n", filename)
 		sampleList := []string{
-			"ADPN", "AdipoR1", "AdipoR2", "ITGAM", "ITGAV", "APLN", "APLNR",
-			"BDNF", "TRKB", "p75NTR", "CX3CL1", "CX3CR1", "FGF21", "FGF1", "FGFR1",
-			"FGFR2", "FGFR3", "FGFR4", "FGF2", "GDF15", "GFRAL", "IL6", "IL6R", "IL7", "IL7R",
-			"IL8", "CXCR1", "CXCR2", "IL13", "IL13RA1", "IL13RA2", "IL15", "IL15RA", "IL2RB",
-			"IL22", "IL22R1", "IL10R2", "IGF1", "IGF1R", "LIF", "LIFR", "OSTN", "NPR3", "GDF8",
-			"ACVR2B", "TGFB1", "TGFBR1", "TGFBR2", "TGFB2", "VEGF", "VEGFR1", "VEGFR2",
-			"TNFR1", "TNFR2", "BMP8A", "BMPR1A", "BMPR2", "BMP8B", "IL1RA", "IL1R1", "RBP4",
-			"STRA6", "MSTN", "DCN", "EGFR", "MCP1", "CCR2", "ANGPTL4", "CNTF",
-			"CNTFR", "gp130", "INS", "INSR", "NRG4", "ERBB4", "IL1", "IL1R2", "IL4", "IL4R",
-			"IL18", "IL18R1", "IL18RAP", "VEGFA", "GDF11", "KL", "CXCL1", "CXCR2", "CCL2",
-			"CSF3", "CSF3R", "CTGF", "LRP1", "PGRN", "SORT1", "REN", "ATP6AP2", "BMP7",
-			"SERPINA12", "GRP78", "RARRES2", "CMLKR1", "ChemR23", "GPR1", "IL1B", "FGF19",
-			"SPX", "GALR2", "GALR3", "LPS", "TLR4", "SCFAs", "GPR41", "GPR43", "IL10", "IL10R",
-			"TNFRSF11B", "RANKL", "BGLAP", "GPRC6A", "SPARC", "SOST", "LRP4", "LRP5", "LRP6",
-			"SPP1", "CD44", "AHSG", "LECT2", "CD209", "SEP", "APOER2", "ADRPIN", "ADIPOR1",
-			"ADIPOR2", "INHBA", "INHBE", "ACVR2A", "TNFA", "IL1A", "IFNG", "IFNGR1", "IFNGR2",
-			"IL6SR", "VDR", "AGE", "RAGE", "S100A", "S100B", "INHBB", "CCL11", "CCR3", "FAS",
-			"FASR", "ICAM1", "ITGAL", "ITGB2", "MDC", "CCR4", "OPN", "PARC", "CCR1", "RANTES",
-			"CCR5", "NTF3", "TRKC", "CNDP2", "METRNL",
+			"ACVR2A", "ACVR2B", "ADIPOR1", "ADIPOR2", "ADPN", "ADRPIN", "AGE", "AHSG",
+			"ANGPTL4", "APLN", "APLNR", "APOER2", "ATP6AP2", "BDNF", "BGLAP", "BMP7",
+			"BMP8A", "BMP8B", "BMPR1A", "BMPR2", "CCL2", "CCL11", "CCR1", "CCR2", "CCR3",
+			"CCR4", "CCR5", "CD44", "CD209", "ChemR23", "CMLKR1", "CNDP2", "CNTF", "CNTFR",
+			"CSF3", "CSF3R", "CTGF", "CX3CL1", "CX3CR1", "CXCL1", "CXCR1", "CXCR2", "DCN",
+			"EGFR", "ERBB4", "FAS", "FASR", "FGF1", "FGF2", "FGF19", "FGF21", "FGFR1",
+			"FGFR2", "FGFR3", "FGFR4", "GALR2", "GALR3", "GDF8", "GDF11", "GDF15", "GFRAL",
+			"gp130", "GPR1", "GPR41", "GPR43", "GPRC6A", "GRP78", "ICAM1", "IFNG", "IFNGR1",
+			"IFNGR2", "IGF1", "IGF1R", "IL1", "IL1A", "IL1B", "IL1R1", "IL1R2", "IL1RA",
+			"IL4", "IL4R", "IL6", "IL6R", "IL6SR", "IL7", "IL7R", "IL8", "IL10", "IL10R",
+			"IL10R2", "IL13", "IL13RA1", "IL13RA2", "IL15", "IL15RA", "IL18", "IL18R1",
+			"IL18RAP", "INHBA", "INHBB", "INHBE", "INS", "INSR", "ITGAL", "ITGAM", "ITGAV",
+			"ITGB2", "KL", "LECT2", "LIF", "LIFR", "LPS", "LRP1", "LRP4", "LRP5", "LRP6",
+			"MCP1", "MDC", "METRNL", "MSTN", "NRG4", "NPR3", "NTF3", "OPN", "OSTN",
+			"SPARC", "PGRN", "RAGE", "RANKL", "RANTES", "RARRES2", "RBP4", "REN", "S100A",
+			"S100B", "SCFAs", "SEP", "SERPINA12", "SORT1", "SOST", "SPARC", "SPP1", "SPX",
+			"STRA6", "TGFB1", "TGFB2", "TGFBR1", "TGFBR2", "TLR4", "TNFA", "TNFR1",
+			"TNFR2", "TNFRSF11B", "TRKB", "TRKC", "VDR", "VEGF", "VEGFA", "VEGFR1", "VEGFR2",
 		}
 		file, err := os.Create(filename)
 		if err != nil {

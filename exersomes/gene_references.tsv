@@ -1,0 +1,88 @@
+Query	Gene_ID	Symbol	Description	Chromosome	MapLocation
+AdipoR2		ADIPOR2	adiponectin receptor 2	Unknown	
+ITGAM		ITGAM	integrin subunit alpha M	Unknown	
+ADPN		ADIPOQ	adiponectin, C1Q and collagen domain containing	Unknown	
+ADPN		PNPLA3	patatin like domain 3, 1-acylglycerol-3-phosphate O-acyltransferase	Unknown	
+APLN		APLN	apelin	Unknown	
+BDNF		BDNF	brain derived neurotrophic factor	Unknown	
+BDNF		Bdnf	brain derived neurotrophic factor	Unknown	
+BDNF		BDNF-AS	BDNF antisense RNA	Unknown	
+CX3CR1		CX3CR1	C-X3-C motif chemokine receptor 1	Unknown	
+FGFR2		FGFR2	fibroblast growth factor receptor 2	Unknown	
+GDF15		GDF15	growth differentiation factor 15	Unknown	
+IL7		IL7	interleukin 7	Unknown	
+IL7		LINC02605	long intergenic non-protein coding RNA 2605	Unknown	
+IL7R		IL7R	interleukin 7 receptor	Unknown	
+CXCR2		CXCR2	C-X-C motif chemokine receptor 2	Unknown	
+IL15RA		IL15RA	interleukin 15 receptor subunit alpha	Unknown	
+IL22R1		IL22RA1	interleukin 22 receptor subunit alpha 1	Unknown	
+IL10R2		IL10RB	interleukin 10 receptor subunit beta	Unknown	
+LIF		LIF	LIF interleukin 6 family cytokine	Unknown	
+LIF		lif		Unknown	
+OSTN		OSTN	osteocrin	Unknown	
+ACVR2B		ACVR2B	activin A receptor type 2B	Unknown	
+TGFBR2		TGFBR2	transforming growth factor beta receptor 2	Unknown	
+VEGFR2		KDR	kinase insert domain receptor	Unknown	
+TNFR1		TNFRSF1A	TNF receptor superfamily member 1A	Unknown	
+BMPR1A		BMPR1A	bone morphogenetic protein receptor type 1A	Unknown	
+BMP8B		BMP8B	bone morphogenetic protein 8b	Unknown	
+STRA6		STRA6	signaling receptor and transporter of retinol STRA6	Unknown	
+MCP1		CCL2	C-C motif chemokine ligand 2	Unknown	
+MCP1		mcp-1		Unknown	
+MCP1		HSMCR30	metaphase chromosome protein 1	Unknown	
+CCR2		CCR2	C-C motif chemokine receptor 2	Unknown	
+CCR2		CCR2	chemokine (C-C motif) receptor 2	Unknown	
+CNTFR		CNTFR	ciliary neurotrophic factor receptor	Unknown	
+gp130		IL6ST	interleukin 6 cytokine family signal transducer	Unknown	
+gp130		LRPPRC	leucine rich pentatricopeptide repeat containing	Unknown	
+gp130		NM	neutrophil migration	Unknown	
+INS		INS	insulin	Unknown	
+NRG4		NRG4	neuregulin 4	Unknown	
+INSR		INSR	insulin receptor	Unknown	
+IL1		IL1B	interleukin 1 beta	Unknown	
+IL1		IL1A	interleukin 1 alpha	Unknown	
+IL18RAP		IL18RAP	interleukin 18 receptor accessory protein	Unknown	
+KL		KL	klotho	Unknown	
+LRP1		LRP1	LDL receptor related protein 1	Unknown	
+LRP1		C1D	C1D nuclear receptor corepressor	Unknown	
+SORT1		SORT1	sortilin 1	Unknown	
+ATP6AP2		ATP6AP2	ATPase H+ transporting accessory protein 2	Unknown	
+SERPINA12		SERPINA12	serpin family A member 12	Unknown	
+RARRES2		RARRES2	retinoic acid receptor responder 2	Unknown	
+FGF19		FGF19	fibroblast growth factor 19	Unknown	
+GPR41		FFAR3	free fatty acid receptor 3	Unknown	
+GPR43		FFAR2	free fatty acid receptor 2	Unknown	
+TLR4		Tlr4	toll-like receptor 4	Unknown	
+TLR4		TLR4	toll like receptor 4	Unknown	
+IL10		IL10	interleukin 10	Unknown	
+IL10R		IL10RA	interleukin 10 receptor subunit alpha	Unknown	
+TNFRSF11B		TNFRSF11B	TNF receptor superfamily member 11b	Unknown	
+TNFRSF11B		BTF3P11	basic transcription factor 3 pseudogene 11	Unknown	
+BGLAP		BGLAP	bone gamma-carboxyglutamate protein	Unknown	
+SOST		SOST	sclerostin	Unknown	
+SPP1		SPP1	secreted phosphoprotein 1	Unknown	
+SPP1		CXXC1	CXXC finger protein 1	Unknown	
+SPP1		SGPP1	sphingosine-1-phosphate phosphatase 1	Unknown	
+SPP1		SPP1		Unknown	
+SPP1		SPP1		Unknown	
+CD44		CD44	CD44 molecule (IN blood group)	Unknown	
+CD209		CD209	CD209 molecule	Unknown	
+CD209		Cd209d	CD209d molecule	Unknown	
+APOER2		LRP8	LDL receptor related protein 8	Unknown	
+ACVR2A		ACVR2A	activin A receptor type 2A	Unknown	
+IFNGR1		IFNGR1	interferon gamma receptor 1	Unknown	
+IFNGR2		IFNGR2	interferon gamma receptor 2	Unknown	
+VDR		VDR	vitamin D receptor	Unknown	
+VDR		CYP27B1	cytochrome P450 family 27 subfamily B member 1	Unknown	
+VDR		PDDR	pseudo-vitamin D dependency rickets 1	Unknown	
+RAGE		AGER	advanced glycosylation end-product specific receptor	Unknown	
+RAGE		MOK	MOK protein kinase	Unknown	
+RAGE		LINC00914	long intergenic non-protein coding RNA 914	Unknown	
+S100A		S100A1	S100 calcium binding protein A1	Unknown	
+INHBB		INHBB	inhibin subunit beta B	Unknown	
+CCR3		CCR3	C-C motif chemokine receptor 3	Unknown	
+ITGAL		ITGAL	integrin subunit alpha L	Unknown	
+ICAM1		ICAM1	intercellular adhesion molecule 1	Unknown	
+OPN		SPP1	secreted phosphoprotein 1	Unknown	
+NTF3		NTF3	neurotrophin 3	Unknown	
+METRNL		METRNL	meteorin like, glial cell differentiation regulator	Unknown	
