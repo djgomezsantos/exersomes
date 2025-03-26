@@ -1,5 +1,5 @@
-// components/musculoskeletal/exerkines.go
-package musculoskeletal
+// components/muscle/myokines.go
+package muscle
 
 // MuscleExerkine represents a muscle-derived signaling molecule
 type MuscleExerkine struct {
