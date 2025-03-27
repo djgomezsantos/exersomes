@@ -3,9 +3,9 @@ package main
 import (
 	"bufio"
 	"encoding/xml"
+	"exersomes/molecular_types"
 	"fmt"
 	"log"
-	"models/molecular_types"
 	"os"
 	"os/exec"
 	"strings"
