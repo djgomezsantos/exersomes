@@ -77,23 +77,6 @@ make all
 - **Python Analysis**: Processing and machine learning on the retrieved data
 - **Visualization**: Network analysis and pathway visualization
 
-## Project Structure
-
-. 
-├── LICENSE 
-├── README.md 
-├── data 
-│ ├── processed_data 
-│ │ ├── exerkines_list.txt 
-│ │ └── gene_references.tsv 
-│ └── raw_data │ 
-├── exersome_gene_ids.txt 
-│ ├── gene_ids.txt 
-│ ├── gene_ids_with_names.txt 
-│ └── target_gene_list.txt 
-├── exersomes │ ├── components │ │ ├── RNA │ │ ├── cf-exerkines │ │ ├── miRNA │ │ ├── protein │ │ └── vesicles │ ├── exersomes.go │ └── go.mod ├── models │ ├── model.py │ └── train_model.py ├── scripts │ ├── BLAST_results.py │ ├── fetch_gene_info.py │ └── retrieve_DNA.py ├── setup.py ├── src │ ├── init.py │ ├── api.py │ ├── main.py │ ├── model.py │ └── preprocessing.py └── tests
-
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
