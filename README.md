@@ -91,4 +91,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 If you use Exersomes in your research, please cite:
 
-Gomez, DJ. et al. (2025). Exersomes: A computational tool for analyzing exercise-induced signaling molecules. [Software]. Available from https://github.com/djgomez8/Exersomes
+Gomez, DJ. et al. (2025). Exersomes: A computational tool for analyzing exercise-induced signaling molecules. [Software]. Available from https://github.com/djgomez/Exersomes
