@@ -4,7 +4,7 @@ package main
 import (
     "net/http"
     "encoding/json"
-    "github.com/djgomez8/exersomes/molecular_types"
+    "github.com/gomezdj/exersomes/molecular_types"
 )
 
 func ExerkineHandler(w http.ResponseWriter, r *http.Request) {
