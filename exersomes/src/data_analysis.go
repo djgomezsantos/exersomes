@@ -2,7 +2,7 @@
 package main
 
 import (
-    "github.com/djgomez8/exersomes/molecular_types"
+    "github.com/gomezdj/exersomes/molecular_types"
 )
 
 func BuildNetwork(exerkines []molecular_types.Exerkine) molecular_types.ExerkineNetwork {
