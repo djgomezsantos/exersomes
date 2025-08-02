@@ -4,7 +4,7 @@ package main
 import (
     "os"
     "os/exec"
-    "github.com/djgomez8/exersomes/molecular_types"
+    "github.com/gomezdj/exersomes/molecular_types"
 )
 
 func GenerateHeatmap(network molecular_types.ExerkineNetwork, outputPath string) error {
