@@ -1,6 +1,6 @@
 # Exersomes
 
-A computational tool for analyzing exerkines (signaling molecules released from exercise).
+A computational tool for modeling, generating, and analyzing exerkines (beneficial signaling molecules released from exercise).
 
 ## Overview
 
