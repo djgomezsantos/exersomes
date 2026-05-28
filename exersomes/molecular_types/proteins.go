@@ -1,4 +1,4 @@
-package proteins
+package molecular_types
 
 // ExerciseProtein represents a protein released during exercise
 type ExerciseProtein struct {
@@ -62,6 +62,7 @@ var (
 func CalculateProteinResponse(protein ExerciseProtein, exerciseType string,
 	intensity float64, duration int, chronicWeeks int) float64 {
 	// Implementation for predicting protein response based on exercise parameters
+	return 0
 }
 
 // Implementation for receptor binding, tissue effects, etc.

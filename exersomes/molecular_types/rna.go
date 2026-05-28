@@ -1,4 +1,4 @@
-package rna
+package molecular_types
 
 // ExerciseRNA represents an RNA affected by exercise (excluding miRNAs)
 type ExerciseRNA struct {
@@ -17,28 +17,28 @@ type ExerciseRNA struct {
 
 // Key exercise-responsive RNAs
 var (
-	MALAT1 = ExerciseRNA{
-		Name:               "MALAT1",
-		Type:               "lncRNA",
+	IL6 = ExerciseRNA{
+		Name:               "IL6",
+		Type:               "pcRNA",
 		Source:             "Multiple tissues",
 		Length:             8708,
 		ExerciseRegulation: "Up with endurance exercise",
-		TransportMechanism: []string{"Extracellular vesicles", "RBP-bound"},
-		TargetTissues:      []string{"Endothelial cells", "Muscle", "Immune cells"},
+		TransportMechanism: []string{"Extracellular vesicles", "Protein complexes"},
+		TargetTissues:      []string{"Endothelial cells", "Muscle", "Adipose"},
 		Function: []string{
-			"Regulates angiogenesis",
-			"Alternative splicing modulation",
-			"Cell cycle regulation",
+			"Modulates immune and inflammatory responses",
+			"Regulates metabolic adaptation to exercise",
+			"Promotes myogenesis and muscle hypertrophy",
 		},
 		AssociatedPathways: []string{
-			"Angiogenesis",
-			"p53 signaling",
-			"mRNA processing",
+			"JAK-STAT signaling pathway",
+			"Cytokine-cytokine receptor interaction",
+			"PI3K-Akt signaling pathway",
 		},
 		RelatedDiseases: []string{
-			"Cardiovascular disease",
-			"Diabetic vasculopathy",
-			"Certain cancers",
+			"Infectious disease",
+			"Autoimmune disease",
+			"Inflammatory bowel disease",
 		},
 		ExerciseTiming: "Gradual increase, peaks several hours post-exercise",
 	}
@@ -50,4 +50,5 @@ var (
 func PredictRNAResponse(rna ExerciseRNA, exerciseType string,
 	intensity float64, duration int) float64 {
 	// Implementation for predicting RNA levels post-exercise
+	return 0
 }

@@ -1,10 +1,4 @@
-package metabolites
-
-type Metabolite struct {
-    ID   string
-    Name string
-    // Add other fields
-}
+package molecular_types
 
 // ExerciseMetabolite represents a metabolite affected by exercise
 type ExerciseMetabolite struct {
@@ -21,14 +15,6 @@ type ExerciseMetabolite struct {
 	SignalingPathways   []string // Pathways activated by this metabolite
 	BiologicalFunctions []string // Physiological roles
 	ExerciseSpecificity string   // Exercise types with strongest effects
-}
-
-func (m Metabolite) GetID() string {
-    return m.ID
-}
-
-func (m Metabolite) GetName() string {
-    return m.Name
 }
 
 // Key exercise-responsive metabolites
@@ -65,6 +51,7 @@ var (
 func PredictMetaboliteResponse(metabolite ExerciseMetabolite, exerciseType string,
 	intensity float64, duration int) float64 {
 	// Implementation for predicting metabolite response based on exercise parameters
+	return 0
 }
 
 // Functions for metabolite signaling, tissue specificity, etc.

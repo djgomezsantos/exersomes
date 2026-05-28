@@ -1,4 +1,4 @@
-package vesicles
+package molecular_types
 
 // ExerciseVesicle represents extracellular vesicles affected by exercise
 type ExerciseVesicle struct {
@@ -72,6 +72,7 @@ var (
 func PredictVesicleResponse(vesicle ExerciseVesicle, exerciseType string,
 	intensity float64, duration int) float64 {
 	// Implementation for predicting vesicle release based on exercise parameters
+	return 0
 }
 
 // Functions for cargo loading, vesicle biodistribution, etc.

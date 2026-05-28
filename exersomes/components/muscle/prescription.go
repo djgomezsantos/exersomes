@@ -1,5 +1,5 @@
-// components/musculoskeletal/prescription.go
-package musculoskeletal
+// components/muscle/prescription.go
+package muscle
 
 // ExercisePrescription defines exercise parameters for musculoskeletal health
 type ExercisePrescription struct {

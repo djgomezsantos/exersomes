@@ -3,11 +3,12 @@ package main
 import (
 	"bufio"
 	"encoding/xml"
-	"exersomes/molecular_types"
+	"exersomes/exersomes/molecular_types"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -70,7 +71,7 @@ func main() {
 	*/
 
 	// Load the list of genes/proteins of interest
-	geneList := loadInputList("exerkines_list.txt")
+	geneList := loadInputList("data/raw_data/exerkines.txt")
 
 	// Process each database type
 	fmt.Println("Retrieving Gene References...")
@@ -78,6 +79,9 @@ func main() {
 
 	fmt.Println("\nRetrieving Protein IDs and Sequences...")
 	fetchProteinData(geneList)
+
+	fmt.Println("\nRetrieving RNA (mRNA) Sequences...")
+	fetchRNAData(geneList)
 
 	fmt.Println("\nRetrieving Pathway Maps...")
 	fetchPathwayMaps(geneList)
@@ -102,13 +106,13 @@ func fetchGeneReferences(geneList []string) {
 	// Create progress tracker
 	progress := NewProgressTracker(len(geneList))
 
-	// Process genes in parallel with 5 workers
-	processGenesInParallel(geneList, 5, func(genes []string, results chan string) {
+	// Process genes in parallel with 2 workers to respect NCBI rate limits
+	processGenesInParallel(geneList, 2, func(genes []string, results chan string) {
 		for _, gene := range genes {
 			// Run esearch with retry and rate limiting
 			cmd := exec.Command("sh", "-c",
 				fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | efetch -format xml", gene))
-			output, err := execWithRetry(cmd, 3) // Try up to 3 times
+			output, err := execWithRetry(cmd, 5) // Try up to 5 times
 			if err != nil {
 				results <- fmt.Sprintf("Error searching for gene %s: %v\n", gene, err)
 				continue
@@ -142,7 +146,7 @@ func fetchGeneReferences(geneList []string) {
 				} `xml:"Entrezgene"`
 			}
 
-			if err := xml.Unmarshal(output, &result); err != nil {
+			if err := xml.Unmarshal(sanitizeXML(output), &result); err != nil {
 				fmt.Printf("Error parsing XML for gene %s: %v\n", gene, err)
 				continue
 			}
@@ -223,6 +227,23 @@ func sanitizeXML(data []byte) []byte {
 
 	// Fix &usehistory - common in NCBI responses
 	sanitized = strings.ReplaceAll(sanitized, "&usehistory", "&amp;usehistory")
+	sanitized = strings.ReplaceAll(sanitized, "&api_key", "&amp;api_key")
+	sanitized = strings.ReplaceAll(sanitized, "&db=", "&amp;db=")
+	sanitized = strings.ReplaceAll(sanitized, "&term=", "&amp;term=")
+	sanitized = strings.ReplaceAll(sanitized, "&retmax=", "&amp;retmax=")
+	sanitized = strings.ReplaceAll(sanitized, "&query_key=", "&amp;query_key=")
+	sanitized = strings.ReplaceAll(sanitized, "&tool=", "&amp;tool=")
+	sanitized = strings.ReplaceAll(sanitized, "&edirect=", "&amp;edirect=")
+	sanitized = strings.ReplaceAll(sanitized, "&edirect_os=", "&amp;edirect_os=")
+	sanitized = strings.ReplaceAll(sanitized, "&email=", "&amp;email=")
+	sanitized = strings.ReplaceAll(sanitized, "&WebEnv", "&amp;WebEnv")
+	sanitized = strings.ReplaceAll(sanitized, "&retstart", "&amp;retstart")
+	sanitized = strings.ReplaceAll(sanitized, "&rettype", "&amp;rettype")
+	sanitized = strings.ReplaceAll(sanitized, "&retmode", "&amp;retmode")
+	sanitized = strings.ReplaceAll(sanitized, "&id=", "&amp;id=")
+	sanitized = strings.ReplaceAll(sanitized, "&dbfrom=", "&amp;dbfrom=")
+	sanitized = strings.ReplaceAll(sanitized, "&cmd=", "&amp;cmd=")
+	sanitized = strings.ReplaceAll(sanitized, "&linkname=", "&amp;linkname=")
 
 	// Fix other potential issues
 	sanitized = strings.ReplaceAll(sanitized, " & ", " &amp; ")
@@ -242,7 +263,7 @@ func execWithRetry(cmd *exec.Cmd, maxRetries int) ([]byte, error) {
 		}
 
 		fmt.Printf("Command failed (attempt %d/%d): %v\n", i+1, maxRetries, err)
-		time.Sleep(time.Duration(i*2) * time.Second) // Exponential backoff
+		time.Sleep(time.Duration(i*3+2) * time.Second) // Slower exponential backoff
 	}
 
 	return output, err
@@ -286,25 +307,37 @@ func loadInputList(filename string) []string {
 	// Check if file exists, if not create example file
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
 		fmt.Printf("Input file %s not found. Creating sample file.\n", filename)
+
+		if err := os.MkdirAll(filepath.Dir(filename), 0755); err != nil {
+			log.Fatalf("Failed to create directories for %s: %v", filename, err)
+		}
+
 		sampleList := []string{
 			"ACVR2A", "ACVR2B", "ADIPOR1", "ADIPOR2", "ADPN", "ADRPIN", "AGE", "AHSG",
 			"ANGPTL4", "APLN", "APLNR", "APOER2", "ATP6AP2", "BDNF", "BGLAP", "BMP7",
 			"BMP8A", "BMP8B", "BMPR1A", "BMPR2", "CCL2", "CCL11", "CCR1", "CCR2", "CCR3",
-			"CCR4", "CCR5", "CD44", "CD209", "ChemR23", "CMLKR1", "CNDP2", "CNTF", "CNTFR",
-			"CSF3", "CSF3R", "CTGF", "CX3CL1", "CX3CR1", "CXCL1", "CXCR1", "CXCR2", "DCN",
-			"EGFR", "ERBB4", "FAS", "FASR", "FGF1", "FGF2", "FGF19", "FGF21", "FGFR1",
-			"FGFR2", "FGFR3", "FGFR4", "GALR2", "GALR3", "GDF8", "GDF11", "GDF15", "GFRAL",
-			"gp130", "GPR1", "GPR41", "GPR43", "GPRC6A", "GRP78", "ICAM1", "IFNG", "IFNGR1",
-			"IFNGR2", "IGF1", "IGF1R", "IL1", "IL1A", "IL1B", "IL1R1", "IL1R2", "IL1RA",
-			"IL4", "IL4R", "IL6", "IL6R", "IL6SR", "IL7", "IL7R", "IL8", "IL10", "IL10R",
-			"IL10R2", "IL13", "IL13RA1", "IL13RA2", "IL15", "IL15RA", "IL18", "IL18R1",
-			"IL18RAP", "INHBA", "INHBB", "INHBE", "INS", "INSR", "ITGAL", "ITGAM", "ITGAV",
-			"ITGB2", "KL", "LECT2", "LIF", "LIFR", "LPS", "LRP1", "LRP4", "LRP5", "LRP6",
-			"MCP1", "MDC", "METRNL", "MSTN", "NRG4", "NPR3", "NTF3", "OPN", "OSTN",
-			"SPARC", "PGRN", "RAGE", "RANKL", "RANTES", "RARRES2", "RBP4", "REN", "S100A",
-			"S100B", "SCFAs", "SEP", "SERPINA12", "SORT1", "SOST", "SPARC", "SPP1", "SPX",
-			"STRA6", "TGFB1", "TGFB2", "TGFBR1", "TGFBR2", "TLR4", "TNFA", "TNFR1",
-			"TNFR2", "TNFRSF11B", "TRKB", "TRKC", "VDR", "VEGF", "VEGFA", "VEGFR1", "VEGFR2",
+			"CCR4", "CCR5", "CCR7", "CD44", "CD209", "ChemR23", "CMLKR1", "CNDP2", "CNTF", "CNTFR",
+			"CSF3", "CSF3R", "CTGF", "CX3CL1", "CX3CR1", "CXCL1", "CXCL10", "CXCL11", "CXCL12",
+			"CXCR1", "CXCR2", "CXCR3", "CXCR4", "DCN", "DKK1", "EGFR", "ERBB2", "ERBB3", "ERBB4",
+			"FAS", "FASR", "FABP3", "FGF1", "FGF2", "FGF19", "FGF21", "FGFR1", "FGFR2", "FGFR3", "FGFR4",
+			"FGFRL1", "FST", "FSTL1", "GAS6", "GDF8", "GDF11", "GDF15", "GFRAL", "gp130", "GPR1", "GPR41",
+			"GPR43", "GPRC6A", "GRP78", "ICAM1", "IFNG", "IFNGR1", "IFNGR2", "IGF1", "IGF1R", "IL1", "IL1A",
+			"IL1B", "IL1R1", "IL1R2", "IL1RN", "IL4", "IL4R", "IL6", "IL6R", "IL6SR", "IL7", "IL7R", "IL8",
+			"IL10", "IL10R", "IL10R2", "IL11", "IL13", "IL13RA1", "IL13RA2", "IL15", "IL15RA", "IL17A", "IL17RA",
+			"IL18", "IL18R1", "IL18RAP", "IL27RA", "IL33", "INHBA", "INHBB", "INHBE", "INS", "INSR", "ITGAL", "ITGAM",
+			"ITGAV", "ITGB2", "KL", "LECT2", "LIF", "LIFR", "LPS", "LRP1", "LRP4", "LRP5", "LRP6", "LCN2", "MCP1", "MDC",
+			"METRNL", "MMP2", "MMP9", "MMP14", "MSTN", "MUSK", "MYLK", "NDNF", "NRG1", "NRG4", "NPR3", "NTF3", "OPN", "OSTN",
+			"SPARC", "PGRN", "RAGE", "RANKL", "RANTES", "RARRES2", "RBP4", "REN", "S100A", "S100B", "SCFAs", "SEP", "SERPINA12",
+			"SORT1", "SOST", "SPARC", "SPP1", "SPX", "SEMA3A", "SEMA3F", "SDC1", "SDC4", "SDC3", "SOD3", "THBS1", "THBS4",
+			"TGFB1", "TGFB2", "TGFBR1", "TGFBR2", "TLR4", "TNF", "TNFA", "TNFSF12", "TNFSF14", "TNFR1", "TNFR2", "TNFRSF11B", "TSLP",
+			"TRKB", "TRKC", "VDR", "VEGF", "VEGFA", "VEGFB", "VEGFC", "VEGFR1", "VEGFR2", "WNT5A", "ACVR1B", "ACVR1C", "ALK1", "ALK4",
+			"ALK5", "BMPR1A", "BMPR1B", "CSF1R", "EPOR", "ERBB3", "ERBB4", "GP130", "IFNGR1", "IFNGR2", "IL1RAP", "INSRR", "MPL",
+			"NOTCH1", "NOTCH2", "OSMR", "PDGFRA", "PDGFRB", "ROR1", "ROR2", "TREM2", "ANXA1", "FPR2", "LGALS3", "MRC1", "NLRP3", "PTGER4",
+			"SOCS3", "STAT3", "TGFB1", "TNFRSF1A", "TNFRSF1B", "AMPK", "PRKAA1", "CAMK2A", "CAMK2B", "CREB1", "ESRRA", "NRF1", "NFE2L2",
+			"PGC1A", "PPARGC1A", "PPARA", "PPARD", "PPARG", "SIRT1", "SIRT3", "TFAM", "UCP2", "UCP3", "CD9", "CD63", "CD81", "HSP90AA1",
+			"RAB27A", "RAB27B", "TSG101", "CNTF", "CREB3L1", "EPO", "GDNF", "NRTN", "S100B", "VGF", "ANGPT1", "ANGPT2", "TEK", "NOS3", "HIF1A",
+			"PECAM1", "SELP", "VCAM1", "CD34", "HGF", "HGFAC", "ITGA7", "NCAM1", "PAX7", "TGFA", "ANGPTL8", "APOA1", "APOE", "C1QTNF5",
+			"CHEMERIN", "FGF19", "RBP4", "SERPINA12",
 		}
 		file, err := os.Create(filename)
 		if err != nil {
@@ -330,6 +363,13 @@ func loadInputList(filename string) []string {
 	for scanner.Scan() {
 		item := strings.TrimSpace(scanner.Text())
 		if item != "" {
+			// Extract official gene symbol if it's in the format "Alias (SYMBOL)"
+			if start := strings.Index(item, "("); start != -1 {
+				if end := strings.Index(item, ")"); end != -1 && end > start {
+					item = strings.TrimSpace(item[start+1 : end])
+				}
+			}
+
 			list = append(list, item)
 		}
 	}
@@ -367,13 +407,13 @@ func fetchProteinData(geneList []string) {
 	// Create progress tracker
 	progress := NewProgressTracker(len(geneList))
 
-	// Process proteins in parallel with 5 workers
-	processGenesInParallel(geneList, 5, func(genes []string, results chan string) {
+	// Process proteins in parallel with 2 workers to respect NCBI rate limits
+	processGenesInParallel(geneList, 2, func(genes []string, results chan string) {
 		for _, gene := range genes {
 			// Run esearch with retry and rate limiting
 			cmd := exec.Command("sh", "-c",
 				fmt.Sprintf("esearch -db protein -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism] AND refseq[Filter]\" | efetch -format xml", gene))
-			output, err := execWithRetry(cmd, 3) // Try up to 3 times
+			output, err := execWithRetry(cmd, 5) // Try up to 5 times
 			if err != nil {
 				results <- fmt.Sprintf("Error searching for protein %s: %v\n", gene, err)
 				continue
@@ -411,7 +451,7 @@ func fetchProteinData(geneList []string) {
 				// Get sequence via efetch with retry
 				seqCmd := exec.Command("sh", "-c",
 					fmt.Sprintf("efetch -db protein -id %s -format fasta", prot.ProtID))
-				seqOutput, err := execWithRetry(seqCmd, 3)
+				seqOutput, err := execWithRetry(seqCmd, 5)
 				if err != nil {
 					fastaMutex.Unlock()
 					results <- fmt.Sprintf("Error fetching sequence for %s: %v\n", prot.ProtID, err)
@@ -437,6 +477,55 @@ func fetchProteinData(geneList []string) {
 	fmt.Printf("Protein sequences saved to protein_sequences.fasta\n")
 }
 
+// Fetch RNA (mRNA) sequences
+func fetchRNAData(geneList []string) {
+	// Create FASTA file for RNA
+	fastaFile, err := os.Create("rna_sequences.fasta")
+	if err != nil {
+		log.Fatalf("Failed to create RNA FASTA file: %v", err)
+	}
+	defer fastaFile.Close()
+
+	// Create mutex for safe file writing
+	var fastaMutex sync.Mutex
+
+	// Create progress tracker
+	progress := NewProgressTracker(len(geneList))
+
+	// Process genes in parallel with 2 workers to respect NCBI rate limits
+	processGenesInParallel(geneList, 2, func(genes []string, results chan string) {
+		for _, gene := range genes {
+			// Delay to respect the rate limit
+			time.Sleep(400 * time.Millisecond)
+
+			// Search nucleotide database for mRNA refseqs and fetch fasta directly
+			cmd := exec.Command("sh", "-c",
+				fmt.Sprintf("esearch -db nucleotide -query \"%s[Gene Name] AND \\\"Homo sapiens\\\"[Organism] AND mRNA[Filter] AND refseq[Filter]\" | efetch -format fasta", gene))
+			output, err := execWithRetry(cmd, 5) // Try up to 5 times
+			if err != nil {
+				results <- fmt.Sprintf("Error fetching RNA for %s: %v\n", gene, err)
+				continue
+			}
+
+			// Validate and write to file safely
+			outputStr := string(output)
+			if len(outputStr) > 0 && strings.Contains(outputStr, ">") {
+				fastaMutex.Lock()
+				fastaFile.WriteString(outputStr)
+				if !strings.HasSuffix(outputStr, "\n") {
+					fastaFile.WriteString("\n")
+				}
+				fastaMutex.Unlock()
+			}
+
+			progress.Increment()
+			results <- fmt.Sprintf("Processed RNA for: %s\n", gene)
+		}
+	})
+
+	fmt.Printf("\nRNA sequences saved to rna_sequences.fasta\n")
+}
+
 // Fetch pathway maps
 func fetchPathwayMaps(geneList []string) {
 	outputFile, err := os.Create("pathway_maps.tsv")
@@ -448,81 +537,88 @@ func fetchPathwayMaps(geneList []string) {
 	// Write header
 	outputFile.WriteString("Gene\tPathway_ID\tPathway_Name\tPathway_Source\tGene_Role\n")
 
-	for _, gene := range geneList {
-		fmt.Printf("Fetching pathways for: %s\n", gene)
+	var fileMutex sync.Mutex
+	progress := NewProgressTracker(len(geneList))
 
-		// Search for pathways in NCBI Biosystems
-		cmd := exec.Command("sh", "-c",
-			fmt.Sprintf("esearch -db biosystems -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | elink -target gene | efetch -format xml", gene))
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Printf("Error searching for pathways for %s: %v\n", gene, err)
-			continue
-		}
+	processGenesInParallel(geneList, 2, func(genes []string, results chan string) {
+		for _, gene := range genes {
+			// Delay to respect the 3 requests/sec limit
+			time.Sleep(400 * time.Millisecond)
 
-		// Parse the XML
-		var result struct {
-			BioSystems []struct {
-				BSID     string `xml:"System_id"`
-				BSName   string `xml:"System_name"`
-				BSSource struct {
-					SourceName string `xml:"BioSource_name"`
-				} `xml:"System_source>BioSource"`
-				BSGenes []struct {
-					GeneRole string `xml:"System-links_db-memberships_value"`
-				} `xml:"System_ent>System-ent_genes>System-links_db-memberships"`
-			} `xml:"Biosystem"`
-		}
-
-		if err := xml.Unmarshal(output, &result); err != nil {
-			fmt.Printf("Error parsing pathway XML for %s: %v\n", gene, err)
-			continue
-		}
-
-		// Write results to file
-		for _, bs := range result.BioSystems {
-			role := "Member"
-			if len(bs.BSGenes) > 0 {
-				role = bs.BSGenes[0].GeneRole
+			// Search for pathways in NCBI Biosystems (Corrected link direction)
+			cmd := exec.Command("sh", "-c",
+				fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | elink -target biosystems | efetch -format xml", gene))
+			output, err := execWithRetry(cmd, 5)
+			if err != nil {
+				results <- fmt.Sprintf("Error searching for pathways for %s: %v\n", gene, err)
+				continue
 			}
 
-			outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
-				gene, bs.BSID, bs.BSName, bs.BSSource.SourceName, role))
-		}
-
-		// Alternative search in KEGG
-		keggCmd := exec.Command("sh", "-c",
-			fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | elink -target pathway | esummary -format xml", gene))
-		keggOutput, err := keggCmd.CombinedOutput()
-		if err != nil {
-			fmt.Printf("Error searching KEGG pathways for %s: %v\n", gene, err)
-			continue
-		}
-
-		var keggResult ESummaryResult
-		if err := xml.Unmarshal(keggOutput, &keggResult); err != nil {
-			fmt.Printf("Error parsing KEGG XML for %s: %v\n", gene, err)
-			continue
-		}
-
-		for _, docsum := range keggResult.DocSums {
-			pathwayID := docsum.Id
-			var pathwayName, pathwaySource string
-
-			for _, item := range docsum.Items {
-				if item.Name == "Full_name_E" {
-					pathwayName = item.Value
-				}
-				if item.Name == "Source" {
-					pathwaySource = item.Value
-				}
+			// Parse the XML
+			var result struct {
+				BioSystems []struct {
+					BSID     string `xml:"System_id"`
+					BSName   string `xml:"System_name"`
+					BSSource struct {
+						SourceName string `xml:"BioSource_name"`
+					} `xml:"System_source>BioSource"`
+					BSGenes []struct {
+						GeneRole string `xml:"System-links_db-memberships_value"`
+					} `xml:"System_ent>System-ent_genes>System-links_db-memberships"`
+				} `xml:"Biosystem"`
 			}
 
-			outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
-				gene, pathwayID, pathwayName, pathwaySource, "Member"))
+			if err := xml.Unmarshal(sanitizeXML(output), &result); err == nil {
+				// Write results to file safely
+				fileMutex.Lock()
+				for _, bs := range result.BioSystems {
+					role := "Member"
+					if len(bs.BSGenes) > 0 {
+						role = bs.BSGenes[0].GeneRole
+					}
+					outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
+						gene, bs.BSID, bs.BSName, bs.BSSource.SourceName, role))
+				}
+				fileMutex.Unlock()
+			}
+
+			// Alternative search in KEGG
+			keggCmd := exec.Command("sh", "-c",
+				fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | elink -target pathway | esummary -format xml", gene))
+			keggOutput, err := execWithRetry(keggCmd, 5)
+			if err != nil {
+				results <- fmt.Sprintf("Error searching KEGG pathways for %s: %v\n", gene, err)
+				continue
+			}
+
+			var keggResult ESummaryResult
+			if err := xml.Unmarshal(sanitizeXML(keggOutput), &keggResult); err == nil {
+				fileMutex.Lock()
+				for _, docsum := range keggResult.DocSums {
+					pathwayID := docsum.Id
+					var pathwayName, pathwaySource string
+
+					for _, item := range docsum.Items {
+						if item.Name == "Full_name_E" {
+							pathwayName = item.Value
+						}
+						if item.Name == "Source" {
+							pathwaySource = item.Value
+						}
+					}
+
+					outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
+						gene, pathwayID, pathwayName, pathwaySource, "Member"))
+				}
+				fileMutex.Unlock()
+			}
+
+			progress.Increment()
+			results <- fmt.Sprintf("Processed pathways for: %s\n", gene)
 		}
-	}
-	fmt.Printf("Pathway information saved to pathway_maps.tsv\n")
+	})
+
+	fmt.Printf("\nPathway information saved to pathway_maps.tsv\n")
 }
 
 // Fetch functional insights
@@ -539,10 +635,13 @@ func fetchFunctionalInsights(geneList []string) {
 	for _, gene := range geneList {
 		fmt.Printf("Fetching functional insights for: %s\n", gene)
 
+		// Delay to respect the 3 requests/sec limit
+		time.Sleep(400 * time.Millisecond)
+
 		// Search PubMed for functional studies
 		cmd := exec.Command("sh", "-c",
 			fmt.Sprintf("esearch -db pubmed -query \"%s[Gene Name] AND function AND (\"Homo sapiens\"[Organism] OR human)\" | efetch -format xml", gene))
-		output, err := cmd.CombinedOutput()
+		output, err := execWithRetry(cmd, 5)
 		if err != nil {
 			fmt.Printf("Error searching for functional insights for %s: %v\n", gene, err)
 			continue
@@ -567,7 +666,7 @@ func fetchFunctionalInsights(geneList []string) {
 			} `xml:"PubmedArticle"`
 		}
 
-		if err := xml.Unmarshal(output, &result); err != nil {
+		if err := xml.Unmarshal(sanitizeXML(output), &result); err != nil {
 			fmt.Printf("Error parsing functional XML for %s: %v\n", gene, err)
 			continue
 		}
@@ -621,7 +720,7 @@ func fetchFunctionalInsights(geneList []string) {
 		// Get Gene Ontology annotations
 		goCmd := exec.Command("sh", "-c",
 			fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | elink -target geneontology | efetch -format xml", gene))
-		goOutput, err := goCmd.CombinedOutput()
+		goOutput, err := execWithRetry(goCmd, 5)
 		if err != nil {
 			fmt.Printf("Error searching GO terms for %s: %v\n", gene, err)
 			continue
@@ -637,7 +736,7 @@ func fetchFunctionalInsights(geneList []string) {
 			} `xml:"GoTerm"`
 		}
 
-		if err := xml.Unmarshal(goOutput, &goResult); err != nil {
+		if err := xml.Unmarshal(sanitizeXML(goOutput), &goResult); err != nil {
 			fmt.Printf("Error parsing GO XML for %s: %v\n", gene, err)
 			continue
 		}

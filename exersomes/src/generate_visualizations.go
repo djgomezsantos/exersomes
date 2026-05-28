@@ -2,18 +2,15 @@
 package main
 
 import (
-    "os"
-    "os/exec"
-    "github.com/gomezdj/exersomes/molecular_types"
+	"exersomes/exersomes/molecular_types"
 )
 
 func GenerateHeatmap(network molecular_types.ExerkineNetwork, outputPath string) error {
-    // Implement or call out to R/Python for visualization
-    cmd := exec.Command("python", "scripts/generate_heatmap.py", outputPath)
-    return cmd.Run()
+	// TODO: Implement Go-native heatmap visualization
+	return nil
 }
 
 func GenerateNetworkGraph(network molecular_types.ExerkineNetwork, outputPath string) error {
-    // Generate Cytoscape-compatible files or render directly
-    return nil
+	// Generate Cytoscape-compatible files or render directly
+	return nil
 }

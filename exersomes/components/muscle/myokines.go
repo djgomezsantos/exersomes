@@ -1,7 +1,7 @@
 // components/muscle/myokines.go
 package muscle
 
-import "../molecular_types"
+import "exersomes/exersomes/molecular_types"
 
 // MuscleExerkine represents a muscle-derived signaling molecule
 type MuscleExerkine struct {
@@ -26,12 +26,12 @@ var (
 )
 
 var (
-	IL6 = molecular_types.Exerkine{
+	IL6_Molecule = molecular_types.Exerkine{
 		Name:           "Interleukin-6",
 		Category:       "Protein",
 		TissueSources:  []string{"Skeletal muscle", "Immune cells"},
 		BiologicalFunc: "Immune response, inflammation, metabolism",
-		Sequence:       "", // Would be full AA sequence
+		Sequence:       "MNSFSTSAFGPVAFSLGLLLVLPAAFPAPVPPGEDSKDVAAPHRQPLTSSERIDKQIRYILDGISALRKETCNKSNMCESSKEALAENNLNLPKMAEKDGCFQSGFNEETCLVKIITGLLEFEVYLEYLQNRFESSEEQARAVQMSTKVLIQFLQKKAKNLDAITTPDPTTNASLLTKLQAQNQWLQDMTTHLILRSFKEFLQSSLRALRQM", // Human IL-6 full AA sequence
 		PDBID:          "1ALU",
 		Receptors:      []string{"IL6R", "IL6ST"},
 	}
@@ -49,5 +49,5 @@ var (
 
 // Additional muscle-specific functions
 func GetMuscleExerkines() []molecular_types.Exerkine {
-	return []molecular_types.Exerkine{IL6, Irisin /*, ... */}
+	return []molecular_types.Exerkine{IL6_Molecule, Irisin /*, ... */}
 }

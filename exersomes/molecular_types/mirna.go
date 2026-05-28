@@ -1,18 +1,4 @@
-package mirna
-
-type MiRNA struct {
-    ID   string
-    Name string
-    // Add other fields
-}
-
-func (r MiRNA) GetID() string {
-    return r.ID
-}
-
-func (r MiRNA) GetName() string {
-    return r.Name
-}
+package molecular_types
 
 // ExerciseMiRNA represents a microRNA affected by exercise
 type ExerciseMiRNA struct {
@@ -66,6 +52,7 @@ var (
 func CalculateExerciseMiRNAResponse(miRNA ExerciseMiRNA, exerciseType string,
 	intensity float64, duration int) float64 {
 	// Implementation for predicting miRNA response based on exercise parameters
+	return 0
 }
 
 // Implementation functions for pathways, targets, etc.

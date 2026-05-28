@@ -1,4 +1,4 @@
-package musculoskeletal
+package muscle
 
 import "time"
 
