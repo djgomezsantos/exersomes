@@ -73,3 +73,7 @@ exersomes/
 ## 📄 License
 
 Open-source. Please ensure compliance with NCBI's data usage guidelines when running the automated E-utilities fetching pipeline.
+
+If you use Exersomes in your research, please cite:
+
+Gomez, DJ. et al. (2025). Exersomes: A computational tool for analyzing exercise-induced signaling molecules. [Software]. Available from https://github.com/gomezdj/Exersomes
