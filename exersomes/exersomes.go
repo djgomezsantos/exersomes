@@ -47,15 +47,32 @@ func main() {
 	var molecules []molecular_types.MolecularType
 
 	// Add different molecular types to the list
-	molecules = append(molecules, molecular_types.Metabolite{ID: "1", Name: "Metabolite1"})
-	molecules = append(molecules, molecular_types.MiRNA{ID: "2", Name: "MiRNA1"})
-	molecules = append(molecules, molecular_types.Protein{ID: "3", Name: "Protein1"})
-	molecules = append(molecules, molecular_types.RNA{ID: "4", Name: "RNA1"})
-	molecules = append(molecules, molecular_types.Vesicles{ID: "5", Name: "Vesicles1"})
+	met := molecular_types.Metabolite{ID: "1", Name: "Lactate"}
+	mirna := molecular_types.MiRNA{ID: "2", Name: "miR-486-5p"}
+	prot := molecular_types.Protein{ID: "3", Name: "IL-6"}
+	rna := molecular_types.RNA{ID: "4", Name: "PGC-1α mRNA"}
+
+	// Package the molecular cargo into a virtual Exersome!
+	exersome := molecular_types.Vesicles{ID: "5", Name: "Muscle-Exersome", Cargo: []molecular_types.MolecularType{met, mirna, prot, rna}}
+
+	// Add them all to the processing queue
+	molecules = append(molecules, met, mirna, prot, rna, exersome)
 
 	// Process the molecules
 	for _, molecule := range molecules {
-		fmt.Println("ID:", molecule.GetID(), "Name:", molecule.GetName())
+		fmt.Printf("Processing [ID: %s] %s...\n", molecule.GetID(), molecule.GetName())
+
+		// Type switch to handle specific molecular processing
+		switch m := molecule.(type) {
+		case molecular_types.Protein:
+			fmt.Printf("  -> Protein identified! Ready for sequence analysis.\n")
+		case molecular_types.RNA:
+			fmt.Printf("  -> RNA identified! Ready for transcriptomic mapping.\n")
+		case molecular_types.Vesicles:
+			fmt.Printf("  -> Vesicle identified! Inspecting cargo capacity: %d items.\n", len(m.Cargo))
+		default:
+			fmt.Printf("  -> Standard molecule logged.\n")
+		}
 	}
 
 	// At the beginning of main()
@@ -74,8 +91,8 @@ func main() {
 	geneList := loadInputList("data/raw_data/exerkines.txt")
 
 	// Process each database type
-	fmt.Println("Retrieving Gene References...")
-	fetchGeneReferences(geneList)
+	fmt.Println("Retrieving RNA References...")
+	fetchRNAReferences(geneList)
 
 	fmt.Println("\nRetrieving Protein IDs and Sequences...")
 	fetchProteinData(geneList)
@@ -90,15 +107,15 @@ func main() {
 	fetchFunctionalInsights(geneList)
 }
 
-func fetchGeneReferences(geneList []string) {
-	outputFile, err := os.Create("gene_references.tsv")
+func fetchRNAReferences(geneList []string) {
+	outputFile, err := os.Create("rna_references.tsv")
 	if err != nil {
 		log.Fatalf("Failed to create output file: %v", err)
 	}
 	defer outputFile.Close()
 
 	// Write header
-	outputFile.WriteString("Query\tGene_ID\tSymbol\tDescription\tChromosome\tMapLocation\n")
+	outputFile.WriteString("Query\tOrganism\tRNA_Reference\tDescription\n")
 
 	// Create a mutex for safe file writing
 	var fileMutex sync.Mutex
@@ -111,76 +128,53 @@ func fetchGeneReferences(geneList []string) {
 		for _, gene := range genes {
 			// Run esearch with retry and rate limiting
 			cmd := exec.Command("sh", "-c",
-				fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | efetch -format xml", gene))
+				fmt.Sprintf("esearch -db nucleotide -query \"%s[Gene Name] AND (\\\"Homo sapiens\\\"[Organism] OR \\\"Rattus norvegicus\\\"[Organism]) AND mRNA[Filter] AND refseq[Filter]\" | efetch -format xml", gene))
 			output, err := execWithRetry(cmd, 5) // Try up to 5 times
 			if err != nil {
-				results <- fmt.Sprintf("Error searching for gene %s: %v\n", gene, err)
+				results <- fmt.Sprintf("Error searching for RNA ref %s: %v\n", gene, err)
 				continue
 			}
 
-			// Parse XML and write to file...
-			var result struct {
-				Entrezgenes []struct {
-					EntrezgeneTrack struct {
-						GeneTrack struct {
-							GeneID string `xml:"geneid"`
-						} `xml:"Gene-track"`
-					} `xml:"Entrezgene_track"`
-					EntrezgeneGene struct {
-						GeneRef struct {
-							GeneDesc  string `xml:"Gene-ref_desc"`
-							GeneLocus string `xml:"Gene-ref_locus"`
-							GeneMap   struct {
-								MapLoc string `xml:"Maps_display-str"`
-							} `xml:"Gene-ref_maploc"`
-						} `xml:"Gene-ref"`
-					} `xml:"Entrezgene_gene"`
-					EntrezgeneSource struct {
-						BioSource struct {
-							SubSource []struct {
-								SubtypeName  string `xml:"SubSource_subtype>SubSource_subtype_name"`
-								SubtypeValue string `xml:"SubSource_name"`
-							} `xml:"BioSource_subtype>SubSource"`
-						} `xml:"Entrezgene_source_biosrc"`
-					} `xml:"Entrezgene_source"`
-				} `xml:"Entrezgene"`
+			var rnaResult struct {
+				SeqList []struct {
+					Accession string `xml:"Bioseq_id>Seq-id>Seq-id_other>Textseq-id>Textseq-id_accession"`
+					Title     string `xml:"Bioseq_descr>Seq-descr>Seqdesc>Seqdesc_title"`
+				} `xml:"Bioseq-set_seq-set>Bioseq"`
 			}
 
-			if err := xml.Unmarshal(sanitizeXML(output), &result); err != nil {
-				fmt.Printf("Error parsing XML for gene %s: %v\n", gene, err)
+			if err := xml.Unmarshal(sanitizeXML(output), &rnaResult); err != nil {
+				results <- fmt.Sprintf("Error parsing XML for RNA ref %s: %v\n", gene, err)
 				continue
 			}
 
 			// Write results to file
-			for _, eg := range result.Entrezgenes {
-				geneID := eg.EntrezgeneTrack.GeneTrack.GeneID
-				symbol := eg.EntrezgeneGene.GeneRef.GeneLocus
-				description := eg.EntrezgeneGene.GeneRef.GeneDesc
-				mapLocation := eg.EntrezgeneGene.GeneRef.GeneMap.MapLoc
+			fileMutex.Lock()
+			for _, seq := range rnaResult.SeqList {
+				accession := seq.Accession
+				title := seq.Title
+				var organism string
 
-				// Find chromosome
-				chromosome := "Unknown"
-				for _, src := range eg.EntrezgeneSource.BioSource.SubSource {
-					if src.SubtypeName == "chromosome" {
-						chromosome = src.SubtypeValue
-						break
-					}
+				if strings.Contains(title, "Homo sapiens") {
+					organism = "Human"
+				} else if strings.Contains(title, "Rattus norvegicus") {
+					organism = "Rat"
+				} else {
+					organism = "Unknown"
 				}
 
-				// Use mutex when writing to file
-				fileMutex.Lock()
-				outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\t%s\n",
-					gene, geneID, symbol, description, chromosome, mapLocation))
-				fileMutex.Unlock()
+				if accession != "" {
+					outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\n", gene, organism, accession, title))
+				}
 			}
+			fileMutex.Unlock()
 
 			progress.Increment()
-			results <- fmt.Sprintf("Processed gene: %s\n", gene)
+			results <- fmt.Sprintf("Processed RNA ref: %s\n", gene)
 
 		}
 	})
 
-	fmt.Printf("\nGene references saved to gene_references.tsv\n")
+	fmt.Printf("\nRNA references saved to rna_references.tsv\n")
 }
 
 // Add this function to process genes concurrently with worker pool
@@ -412,7 +406,7 @@ func fetchProteinData(geneList []string) {
 		for _, gene := range genes {
 			// Run esearch with retry and rate limiting
 			cmd := exec.Command("sh", "-c",
-				fmt.Sprintf("esearch -db protein -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism] AND refseq[Filter]\" | efetch -format xml", gene))
+				fmt.Sprintf("esearch -db protein -query \"%s[Gene Name] AND (\\\"Homo sapiens\\\"[Organism] OR \\\"Rattus norvegicus\\\"[Organism]) AND refseq[Filter]\" | efetch -format xml", gene))
 			output, err := execWithRetry(cmd, 5) // Try up to 5 times
 			if err != nil {
 				results <- fmt.Sprintf("Error searching for protein %s: %v\n", gene, err)
@@ -500,7 +494,7 @@ func fetchRNAData(geneList []string) {
 
 			// Search nucleotide database for mRNA refseqs and fetch fasta directly
 			cmd := exec.Command("sh", "-c",
-				fmt.Sprintf("esearch -db nucleotide -query \"%s[Gene Name] AND \\\"Homo sapiens\\\"[Organism] AND mRNA[Filter] AND refseq[Filter]\" | efetch -format fasta", gene))
+				fmt.Sprintf("esearch -db nucleotide -query \"%s[Gene Name] AND (\\\"Homo sapiens\\\"[Organism] OR \\\"Rattus norvegicus\\\"[Organism]) AND mRNA[Filter] AND refseq[Filter]\" | efetch -format fasta", gene))
 			output, err := execWithRetry(cmd, 5) // Try up to 5 times
 			if err != nil {
 				results <- fmt.Sprintf("Error fetching RNA for %s: %v\n", gene, err)
@@ -547,7 +541,7 @@ func fetchPathwayMaps(geneList []string) {
 
 			// Search for pathways in NCBI Biosystems (Corrected link direction)
 			cmd := exec.Command("sh", "-c",
-				fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | elink -target biosystems | efetch -format xml", gene))
+				fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND (\\\"Homo sapiens\\\"[Organism] OR \\\"Rattus norvegicus\\\"[Organism])\" | elink -target biosystems | efetch -format xml", gene))
 			output, err := execWithRetry(cmd, 5)
 			if err != nil {
 				results <- fmt.Sprintf("Error searching for pathways for %s: %v\n", gene, err)
@@ -584,7 +578,7 @@ func fetchPathwayMaps(geneList []string) {
 
 			// Alternative search in KEGG
 			keggCmd := exec.Command("sh", "-c",
-				fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | elink -target pathway | esummary -format xml", gene))
+				fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND (\\\"Homo sapiens\\\"[Organism] OR \\\"Rattus norvegicus\\\"[Organism])\" | elink -target pathway | esummary -format xml", gene))
 			keggOutput, err := execWithRetry(keggCmd, 5)
 			if err != nil {
 				results <- fmt.Sprintf("Error searching KEGG pathways for %s: %v\n", gene, err)
@@ -632,128 +626,123 @@ func fetchFunctionalInsights(geneList []string) {
 	// Write header
 	outputFile.WriteString("Gene\tFunction_Type\tDescription\tEvidence\tReference_PMID\n")
 
-	for _, gene := range geneList {
-		fmt.Printf("Fetching functional insights for: %s\n", gene)
+	var fileMutex sync.Mutex
+	progress := NewProgressTracker(len(geneList))
 
-		// Delay to respect the 3 requests/sec limit
-		time.Sleep(400 * time.Millisecond)
+	processGenesInParallel(geneList, 2, func(genes []string, results chan string) {
+		for _, gene := range genes {
+			// Delay to respect the 3 requests/sec limit
+			time.Sleep(400 * time.Millisecond)
 
-		// Search PubMed for functional studies
-		cmd := exec.Command("sh", "-c",
-			fmt.Sprintf("esearch -db pubmed -query \"%s[Gene Name] AND function AND (\"Homo sapiens\"[Organism] OR human)\" | efetch -format xml", gene))
-		output, err := execWithRetry(cmd, 5)
-		if err != nil {
-			fmt.Printf("Error searching for functional insights for %s: %v\n", gene, err)
-			continue
-		}
+			// Search PubMed for functional studies
+			cmd := exec.Command("sh", "-c",
+				fmt.Sprintf("esearch -db pubmed -query \"%s[Gene Name] AND function AND (\\\"Homo sapiens\\\"[Organism] OR \\\"Rattus norvegicus\\\"[Organism] OR human OR rat)\" | efetch -format xml", gene))
+			output, err := execWithRetry(cmd, 5)
+			if err != nil {
+				results <- fmt.Sprintf("Error searching for functional insights for %s: %v\n", gene, err)
+				continue
+			}
 
-		// Parse the XML
-		var result struct {
-			Articles []struct {
-				PMID    string `xml:"MedlineCitation>PMID"`
-				Article struct {
-					Title    string `xml:"ArticleTitle"`
-					Abstract struct {
-						AbstractText []struct {
-							Label string `xml:"Label,attr"`
-							Text  string `xml:",chardata"`
-						} `xml:"AbstractText"`
-					} `xml:"Abstract"`
-				} `xml:"MedlineCitation>Article"`
-				KeywordList struct {
-					Keywords []string `xml:"Keyword"`
-				} `xml:"MedlineCitation>KeywordList"`
-			} `xml:"PubmedArticle"`
-		}
+			// Parse the XML
+			var result struct {
+				Articles []struct {
+					PMID    string `xml:"MedlineCitation>PMID"`
+					Article struct {
+						Title    string `xml:"ArticleTitle"`
+						Abstract struct {
+							AbstractText []struct {
+								Label string `xml:"Label,attr"`
+								Text  string `xml:",chardata"`
+							} `xml:"AbstractText"`
+						} `xml:"Abstract"`
+					} `xml:"MedlineCitation>Article"`
+					KeywordList struct {
+						Keywords []string `xml:"Keyword"`
+					} `xml:"MedlineCitation>KeywordList"`
+				} `xml:"PubmedArticle"`
+			}
 
-		if err := xml.Unmarshal(sanitizeXML(output), &result); err != nil {
-			fmt.Printf("Error parsing functional XML for %s: %v\n", gene, err)
-			continue
-		}
+			if err := xml.Unmarshal(sanitizeXML(output), &result); err == nil {
+				fileMutex.Lock()
+				for _, article := range result.Articles {
+					functionType := "Molecular Function"
+					evidence := "Literature"
+					var description string
 
-		// Write results to file
-		for _, article := range result.Articles {
-			// Extract function type and evidence from abstract sections or keywords
-			functionType := "Molecular Function"
-			evidence := "Literature"
+					if len(article.Article.Abstract.AbstractText) > 0 {
+						for _, section := range article.Article.Abstract.AbstractText {
+							if section.Label == "RESULTS" || section.Label == "CONCLUSION" || section.Label == "CONCLUSIONS" {
+								description = section.Text
+								break
+							}
+						}
 
-			var description string
-
-			// Try to get functional description from abstract
-			if len(article.Article.Abstract.AbstractText) > 0 {
-				for _, section := range article.Article.Abstract.AbstractText {
-					if section.Label == "RESULTS" || section.Label == "CONCLUSION" || section.Label == "CONCLUSIONS" {
-						description = section.Text
-						break
+						if description == "" {
+							description = article.Article.Abstract.AbstractText[0].Text
+						}
 					}
+
+					if description == "" {
+						description = article.Article.Title
+					}
+
+					for _, keyword := range article.KeywordList.Keywords {
+						lowerKeyword := strings.ToLower(keyword)
+						if strings.Contains(lowerKeyword, "signal") || strings.Contains(lowerKeyword, "pathway") {
+							functionType = "Signaling"
+						} else if strings.Contains(lowerKeyword, "metabol") {
+							functionType = "Metabolism"
+						} else if strings.Contains(lowerKeyword, "immune") || strings.Contains(lowerKeyword, "inflamm") {
+							functionType = "Immune Regulation"
+						} else if strings.Contains(lowerKeyword, "exercis") || strings.Contains(lowerKeyword, "muscle") {
+							functionType = "Exercise Response"
+						}
+					}
+
+					outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
+						gene, functionType, description, evidence, article.PMID))
+				}
+				fileMutex.Unlock()
+			}
+
+			// Get Gene Ontology annotations
+			goCmd := exec.Command("sh", "-c",
+				fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND (\\\"Homo sapiens\\\"[Organism] OR \\\"Rattus norvegicus\\\"[Organism])\" | elink -target geneontology | efetch -format xml", gene))
+			goOutput, err := execWithRetry(goCmd, 5)
+			if err == nil {
+				var goResult struct {
+					Terms []struct {
+						TermID       string `xml:"GO_term_id"`
+						TermName     string `xml:"GO_term_name"`
+						TermCategory string `xml:"GO_term_category"`
+						Evidence     string `xml:"GO_term_evidence"`
+						Source       string `xml:"GO_term_source"`
+					} `xml:"GoTerm"`
 				}
 
-				// If no specific section found, use the first section
-				if description == "" && len(article.Article.Abstract.AbstractText) > 0 {
-					description = article.Article.Abstract.AbstractText[0].Text
+				if err := xml.Unmarshal(sanitizeXML(goOutput), &goResult); err == nil {
+					fileMutex.Lock()
+					for _, term := range goResult.Terms {
+						functionType := term.TermCategory
+						if functionType == "Function" {
+							functionType = "Molecular Function"
+						} else if functionType == "Process" {
+							functionType = "Biological Process"
+						} else if functionType == "Component" {
+							functionType = "Cellular Component"
+						}
+
+						outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
+							gene, functionType, term.TermName, term.Evidence, term.Source))
+					}
+					fileMutex.Unlock()
 				}
 			}
 
-			// If still no description, use article title
-			if description == "" {
-				description = article.Article.Title
-			}
-
-			// Look for functional keywords
-			for _, keyword := range article.KeywordList.Keywords {
-				lowerKeyword := strings.ToLower(keyword)
-				if strings.Contains(lowerKeyword, "signal") || strings.Contains(lowerKeyword, "pathway") {
-					functionType = "Signaling"
-				} else if strings.Contains(lowerKeyword, "metabol") {
-					functionType = "Metabolism"
-				} else if strings.Contains(lowerKeyword, "immune") || strings.Contains(lowerKeyword, "inflamm") {
-					functionType = "Immune Regulation"
-				} else if strings.Contains(lowerKeyword, "exercis") || strings.Contains(lowerKeyword, "muscle") {
-					functionType = "Exercise Response"
-				}
-			}
-
-			outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
-				gene, functionType, description, evidence, article.PMID))
+			progress.Increment()
+			results <- fmt.Sprintf("Processed functional insights for: %s\n", gene)
 		}
+	})
 
-		// Get Gene Ontology annotations
-		goCmd := exec.Command("sh", "-c",
-			fmt.Sprintf("esearch -db gene -query \"%s[Gene Name] AND \"Homo sapiens\"[Organism]\" | elink -target geneontology | efetch -format xml", gene))
-		goOutput, err := execWithRetry(goCmd, 5)
-		if err != nil {
-			fmt.Printf("Error searching GO terms for %s: %v\n", gene, err)
-			continue
-		}
-
-		var goResult struct {
-			Terms []struct {
-				TermID       string `xml:"GO_term_id"`
-				TermName     string `xml:"GO_term_name"`
-				TermCategory string `xml:"GO_term_category"`
-				Evidence     string `xml:"GO_term_evidence"`
-				Source       string `xml:"GO_term_source"`
-			} `xml:"GoTerm"`
-		}
-
-		if err := xml.Unmarshal(sanitizeXML(goOutput), &goResult); err != nil {
-			fmt.Printf("Error parsing GO XML for %s: %v\n", gene, err)
-			continue
-		}
-
-		for _, term := range goResult.Terms {
-			functionType := term.TermCategory
-			if functionType == "Function" {
-				functionType = "Molecular Function"
-			} else if functionType == "Process" {
-				functionType = "Biological Process"
-			} else if functionType == "Component" {
-				functionType = "Cellular Component"
-			}
-
-			outputFile.WriteString(fmt.Sprintf("%s\t%s\t%s\t%s\t%s\n",
-				gene, functionType, term.TermName, term.Evidence, term.Source))
-		}
-	}
-	fmt.Printf("Functional insights saved to functional_insights.tsv\n")
+	fmt.Printf("\nFunctional insights saved to functional_insights.tsv\n")
 }

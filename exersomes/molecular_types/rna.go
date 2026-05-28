@@ -17,7 +17,7 @@ type ExerciseRNA struct {
 
 // Key exercise-responsive RNAs
 var (
-	IL6 = ExerciseRNA{
+	IL6_RNA = ExerciseRNA{
 		Name:               "IL6",
 		Type:               "pcRNA",
 		Source:             "Multiple tissues",

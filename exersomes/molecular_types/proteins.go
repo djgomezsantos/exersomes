@@ -20,7 +20,7 @@ type ExerciseProtein struct {
 
 // Key exercise-responsive proteins
 var (
-	IL6 = ExerciseProtein{
+	IL6_Protein = ExerciseProtein{
 		Name:                "Interleukin 6",
 		UniprotID:           "P05231",
 		MolecularWeightKDa:  21.0,

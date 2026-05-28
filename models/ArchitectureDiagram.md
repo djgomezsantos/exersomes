@@ -1,32 +1,28 @@
 flowchart TD
-    A[Input Data] --> B[Encoder (VAE)]
-    B --> C[Latent Space]
-    C --> D[Decoder (VAE)]
-    D --> E[RNA/Protein Transformer]
-    E --> F[Output Sequence]
+    A[Multi-Omic Exercise Data] --> B[PNMLM Client]
+    A --> C[ESM-2 Client]
+    A --> D[EDM Client]
+    B --> E[Precision Latent Embeddings]
+    C --> F[Zero-Shot Protein Fitness & Structure]
+    D --> G[3D Metabolite / Lipid Generation]
+    E --> H[Exersome Assembly Prediction]
+    E --> I[Personalized Exercise Prescription]
 
 
-+-----------------------------------------------------+
-|          Deep Generative Architecture               |
-|                                                     |
-|  +---------------------------+                      |
-|  |       VAE Module          |                      |
-|  |  +-----------+            |                      |
-|  |  |  Encoder  |            |                      |
-|  |  +-----------+            |                      |
-|  |         |                 |                      |
-|  |   Latent Space            |                      |
-|  |         |                 |                      |
-|  |  +-----------+            |                      |
-|  |  |  Decoder  |            |                      |
-|  |  +-----------+            |                      |
-|  +---------------------------+                      |
-|               |                                     |
-|               v                                     |
-|  +-------------------------------+                  |
-|  | RNA/Protein Transformer Model |                  |
-|  |  (Sequence Generation)        |                  |
-|  +-------------------------------+                  |
-|                                                     |
-|  Input Data -> VAE -> Transformer -> Output         |
-+-----------------------------------------------------+
++-----------------------------------------------------------------------+
+|                   Exersomes Deep Learning Architecture                |
+|                                                                       |
+|  +----------------+    +------------------+    +-------------------+  |
+|  |  PNMLM Client  |    |   ESM-2 Client   |    |    EDM Client     |  |
+|  | (Transformers) |    | (Evolutionary LM)|    | (3D Diffusion)    |  |
+|  +-------+--------+    +--------+---------+    +---------+---------+  |
+|          |                      |                        |            |
+|          v                      v                        v            |
+|  +-----------------------------------------------------------------+  |
+|  |                    PyTorch Inference Backend                    |  |
+|  |                                                                 |  |
+|  |  - Latent Embedding Generation   - Inter-residue Contact Maps   |  |
+|  |  - Exersome Cargo Assembly       - E(n) Equivariant Sampling    |  |
+|  |  - Clinical Protocol Decoding    - Zero-shot Fitness Scoring    |  |
+|  +-----------------------------------------------------------------+  |
++-----------------------------------------------------------------------+

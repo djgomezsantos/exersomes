@@ -2,15 +2,13 @@ package heart
 
 // Cardiokine represents a signaling molecule secreted from cardiac tissue
 type Cardiokine struct {
-	Name               string
-	MolecularWeight    float64  // In kDa
-	SourceCells        []string // Cell types producing this factor
-	TargetOrgans       []strings
-	ExerciseRegulation string // "Up", "Down", "Biphasic"
-	TemporalPattern    string // "Acute", "Chronic", "Both"
-	PrimaryEffects     []string
-	CardiacEffect      string // Primary effect on cardiac function
-	BaselineRange      struct {
+	Name            string
+	MolecularWeight float64  // In kDa
+	SourceCells     []string // Cell types producing this factor
+	TargetOrgans    []string // Organs/tissues influenced by this factor
+	PrimaryEffects  []string // Main physiological effects
+	CardiacEffect   string   // Primary effect on cardiac function
+	BaselineRange   struct {
 		Min  float64
 		Max  float64
 		Unit string
