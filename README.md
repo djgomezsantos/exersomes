@@ -2,7 +2,7 @@
 
 **Exersomes** is a comprehensive Go-based bioinformatics and simulation framework designed to model, analyze, and predict the molecular responses to exercise. 
 
-The project focuses on **exerkines**—signaling molecules (proteins, metabolites, miRNAs, RNAs) released by various tissues (like skeletal muscle, mitochondria, and placenta) during physical exertion. By integrating real-world biological data with programmatic simulations and a powerful **Protein-Nucleic acid Language Model (PNLM)** (based on Nature Communications, 2025), Exersomes aims to map the complex molecular networks of exercise physiology for personalized precision medicine, gene therapy, and disease modeling.
+The project focuses on **exerkines**—signaling molecules (proteins, metabolites, miRNAs, RNAs) released by various tissues (like skeletal muscle, mitochondria, and placenta) during physical exertion. By integrating real-world biological data with programmatic simulations and a powerful **Protein-Nucleic acid Language Model (PNLM)**, Exersomes aims to map the complex molecular networks of exercise physiology for personalized precision medicine, gene therapy, and disease modeling.
 
 ## 🧬 Key Features
 
