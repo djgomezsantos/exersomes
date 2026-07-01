@@ -1,12 +1,11 @@
 # Exersomes
-
 **Exersomes** is a comprehensive Go-based bioinformatics and simulation framework designed to model, analyze, and predict the molecular responses to exercise. 
 
 The project focuses on **exerkines**—signaling molecules (proteins, metabolites, miRNAs, RNAs) released by various tissues (like skeletal muscle, mitochondria, and placenta) during physical exertion. By integrating real-world biological data with programmatic simulations and a powerful **Protein-Nucleic acid Language Model (PNLM)**, Exersomes aims to map the complex molecular networks of exercise physiology for personalized precision medicine, gene therapy, and disease modeling.
 
 ## 🧬 Key Features
 
-- **Molecular Type Modeling**: Strongly-typed Go structs representing diverse exercise-responsive molecules including `Proteins` (e.g., IL-6, Irisin), `Metabolites` (e.g., Lactate), `miRNAs`, `RNAs`, and `Vesicles`.
+- **Molecular Type Modeling**: Strongly-typed Go structs representing diverse exercise-responsive exerkines molecules including `Proteins` (e.g., IL-6, IL-10, PPARG), `Metabolites` (e.g., 12,13-diHOME, Lac-Phe, Lactate, AICAR, BAIBA, 2-OHB, 3-OHB), `miRNAs`, `RNAs` (e.g., exerkines), and `Vesicles` (e.g., exersomes, cargo (RNAs, proteins).
 - **Protein-Nucleic Language Model (PNLM)**: Natively integrates with transformer-based architectures to measure and embed **RNA trajectory velocities**, **protein expression levels**, and lipid/metabolite cross-talk for high-precision exerkine generation.
 - **Temporal Dynamics & Circulating Factors**: Calculates physiological half-lives, acute vs. chronic release times, and tracks bloodstream factors (e.g., Epinephrine, Cortisol, Lactate, BDNF) during and post-exercise.
 - **Mitochondrial Signaling (Mitokines)**: Simulates the release and downstream effects of mitokines (e.g., PGC-1α, TFAM, FGF21, GDF15, mtROS) in response to bioenergetic demands and mitochondrial stress.
@@ -51,7 +50,6 @@ To automatically fetch the FASTA sequences and biological data for your exerkine
    - `pathway_maps.tsv` & `functional_insights.tsv`: Mined functional insights from PubMed and GO.
 
 ### 2. Physiological Simulations
-
 Programmatically integrate the additional omes, cardiometabolism, placental components, and organokiome to infer and explain molecular responses:
 
 - **Adipomyokinome**: Use `InferAdipomyokines(exerciseType, intensityPercent, durationMinutes, timePointsCount)` to map the rise and decay of adipomyokines like IL-6 in obesity and cancer.
@@ -59,7 +57,6 @@ Programmatically integrate the additional omes, cardiometabolism, placental comp
 - **Organokinome**: Use `CalculateOrganokineResponse` to estimate the change in organokine levels based on exercise parameters, gut microbiota, and training status.
 
 ### 3. Language Model (LM) Integrations
-
 Exersomes provides a unified Go client interface to orchestrate state-of-the-art machine learning models for deep molecular analysis:
 
 - **PNMLM (Protein-Nucleic Acid-Metabolite Language Model)**: Generate multi-modal latent embeddings combining RNA velocity, protein expression, and localized lipids. Predict systemic exersome assembly and decode personalized exercise prescriptions.
@@ -73,8 +70,9 @@ Exersomes provides a unified Go client interface to orchestrate state-of-the-art
 exersomes/
 ├── exersomes.go                             # Main NCBI data fetching entrypoint
 ├── molecular_types/                         # Core exerkine models (miRNA, RNA, Proteins)
-├── components/
-│   ├── muscle/                              # Skeletal muscle simulation
+├── organs/
+│   ├── muscle/                              # Skeletal muscle
+|   ├── adipose/                             # Adipose tissue 
 │   ├── cardiovascular/bloodstream/          # Circulating blood factors & temporal decay
 │   └── placenta/                            # Mitokines and mitochondrial signaling
 ├── models/                                  # Deep learning architecture and clients
@@ -90,4 +88,4 @@ Open-source. Please ensure compliance with NCBI's data usage guidelines when run
 
 If you use Exersomes in your research, please cite:
 
-Gomez, DJ. et al. (2025). Exersomes: A computational tool for analyzing exercise-induced signaling molecules. [Software]. Available from https://github.com/gomezdj/Exersomes
+Gomez, DJ. et al. (2026). Exersomes: A computational tool for analyzing exercise-induced signaling molecules. [Software]. Available from https://github.com/djgomezsantos/Exersomes
